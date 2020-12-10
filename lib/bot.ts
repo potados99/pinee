@@ -14,7 +14,7 @@ export default async function startBot() {
 
   client.on("message", async (message) => {
     if (!message.guild) {
-      console.log('DM not allowed!');
+      console.log("DM not allowed!");
       return;
     }
 
@@ -23,14 +23,14 @@ export default async function startBot() {
 
   client.on("messageUpdate", async (before, after) => {
     if (!after.guild) {
-      console.log('DM not allowed!');
+      console.log("DM not allowed!");
       return;
     }
 
     await onMessageUpdate(
       client,
       before.partial ? await before.fetch() : before,
-      after.partial ? await after.fetch() : after,
+      after.partial ? await after.fetch() : after
     );
   });
 
