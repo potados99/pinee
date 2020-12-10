@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f4b9f25-c5f3-4bb9-88f4-fc4d999d2a2a" name="Default Changelist" comment="First working version.">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="1f4b9f25-c5f3-4bb9-88f4-fc4d999d2a2a" name="Default Changelist" comment="Remove credentials">
+      <change afterPath="$PROJECT_DIR$/lib/bot.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/interactor/AskUser.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/responder/NewPinEventResponder.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/routes/message.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/routes/ready.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +33,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_MARK_IGNORED_FILES_AS_EXCLUDED" value="true" />
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
@@ -62,7 +70,7 @@
       </scripts>
       <node-interpreter value="project" />
       <envs>
-        <env name="TOKEN" value="Nzg2NDc3NzY1MjA1NDI2MTc2.X9G-fw.cmAN1_S-docx7BGfJtXJTgdB_vQ" />
+        <env name="TOKEN" value="Nzg2NDc3NzY1MjA1NDI2MTc2.X9G-fw.klIBQkjHtLZYt6TW9eCQSXiMwS4" />
       </envs>
       <method v="2" />
     </configuration>
@@ -109,7 +117,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1607581175807</updated>
-      <workItem from="1607581177592" duration="3025000" />
+      <workItem from="1607581177592" duration="18691000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1607581242956</created>
@@ -125,7 +133,21 @@
       <option name="project" value="LOCAL" />
       <updated>1607584303666</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="First working version.">
+      <created>1607584402940</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1607584402940</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Remove credentials">
+      <created>1607584539895</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1607584539895</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -145,6 +167,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
     <MESSAGE value="First working version." />
-    <option name="LAST_COMMIT_MESSAGE" value="First working version." />
+    <MESSAGE value="Remove credentials" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove credentials" />
   </component>
 </project>
