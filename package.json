@@ -1,7 +1,7 @@
 {
   "name": "tarvern-pin-archiver",
   "version": "1.0.0",
-  "description": "",
+  "description": "핀 백업해주는 pinee",
   "scripts": {
 
     "dev": "nodemon --exec ts-node index.ts",
