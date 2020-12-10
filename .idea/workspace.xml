@@ -2,18 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1f4b9f25-c5f3-4bb9-88f4-fc4d999d2a2a" name="Default Changelist" comment="Ready to test.">
-      <change afterPath="$PROJECT_DIR$/lib/command/Command.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/command/SyncCommand.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/interactor/ArchiveMessage.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/interactor/GetArchiveChannel.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/responder/CommandResponder.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/routes/update.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/bot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/bot.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/interactor/AskUser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/interactor/AskUser.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/responder/NewPinEventResponder.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/responder/NewPinEventResponder.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/message.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/message.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +111,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1607581175807</updated>
-      <workItem from="1607581177592" duration="24141000" />
+      <workItem from="1607581177592" duration="25308000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1607581242956</created>
@@ -158,7 +148,14 @@
       <option name="project" value="LOCAL" />
       <updated>1607600519125</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Ready to test.">
+      <created>1607605772856</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1607605772856</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
