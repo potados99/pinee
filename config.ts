@@ -4,7 +4,7 @@ import SyncCommand from "./lib/command/SyncCommand";
 export default {
   bot: {
     name: '',
-    themeColor: 0x7289da
+    themeColor: 0x836DC4
   },
 
   command: {
