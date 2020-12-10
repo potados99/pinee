@@ -16,9 +16,6 @@ dist/
 .vscode
 !.vscode/tasks.js
 
-# JetBrains IDEs
-.idea/
-
 # Optional npm cache directory
 .npm
 
@@ -27,3 +24,5 @@ dist/
 
 # Misc
 .DS_Store
+
+
