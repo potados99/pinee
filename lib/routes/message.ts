@@ -1,35 +1,25 @@
 import { Client, Message } from "discord.js";
-import NewPinEventResponder from "../responder/NewPinEventResponder";
+import config from "../../config";
+import CommandResponder from "../responder/CommandResponder";
 
-export async function onMessageUpdate(client: Client, before: Message, after: Message) {
-  if (isByThisBot(client, after)) {
+export async function onMessage(client: Client, message: Message) {
+  if (isByThisBot(client, message)) {
     // Do not echo messages from this bot.
     return;
   }
 
-  if (contentChanged(before, after)) {
-    // Not a pin event.
-    return
-  }
-
-  if (isNotPinned(after)) {
-    // Not pinned.
+  if (isNotCommand(message)) {
+    // Only handle command.
     return;
   }
 
-  // Now this is a new pin event. Handle it.
-  await new NewPinEventResponder(client, after).handle();
+  await new CommandResponder(client, message).handle();
 }
 
 function isByThisBot(client: Client, message: Message) {
   return message.author.id === client.user?.id;
 }
 
-function contentChanged(before: Message, after: Message) {
-  return before.content !== after.content;
+function isNotCommand(message: Message) {
+  return !message.content.startsWith(config.command.prefix);
 }
-
-function isNotPinned(message: Message) {
-  return !message.pinned;
-}
-

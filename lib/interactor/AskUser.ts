@@ -44,7 +44,7 @@ export default class AskUser {
       return oneOfAvailableOptions && notByThisBot;
     };
 
-    // Wait for 15sec, accept only first one reaction.
+    // Wait until first reaction or timeout.
     const awaitOptions = { max: 1, time: config.confirmDialog.timeout };
 
     // Wait for user's answer

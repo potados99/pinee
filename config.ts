@@ -1,4 +1,5 @@
 import getEnv from "./lib/utils/env";
+import SyncCommand from "./lib/command/SyncCommand";
 
 export default {
   bot: {
@@ -6,12 +7,19 @@ export default {
     themeColor: 0x7289da
   },
 
+  command: {
+    prefix: '!!',
+    list: [
+      new SyncCommand('고정메시지모두백업')
+    ]
+  },
+
   auth: {
     token: getEnv('TOKEN') || 'YEAH'
   },
 
   confirmDialog: {
-    timeout: 15 * 1000
+    timeout: 30 * 1000
   },
 
   archiveChannel: {

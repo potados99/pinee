@@ -1,30 +1,42 @@
-import Discord, { Message } from "discord.js";
+import Discord from "discord.js";
 import { onReady } from "./routes/ready";
-import { onMessageUpdate } from "./routes/message";
+import { onMessage } from "./routes/message";
+import { onMessageUpdate } from "./routes/update";
 import config from "../config";
 
 export default async function startBot() {
 
-  const client = new Discord.Client({ partials: ['MESSAGE'] }); // Listen for changes on previous messages.
+  const client = new Discord.Client({ partials: ["MESSAGE"] }); // Listen for changes on previous messages.
 
-  client.on('ready', async () => {
+  client.on("ready", async () => {
     await onReady(client);
   });
 
-  client.on('messageUpdate', async (before, after) => {
-   if (before.partial || after.partial) {
-     console.log('Update on previous message.');
+  client.on("message", async (message) => {
+    if (!message.guild) {
+      console.log('DM not allowed!');
+      return;
+    }
 
-     await before.fetch();
-     await after.fetch();
-   }
+    await onMessage(client, message);
+  });
 
-    await onMessageUpdate(client, before as Message, after as Message);
-  })
+  client.on("messageUpdate", async (before, after) => {
+    if (!after.guild) {
+      console.log('DM not allowed!');
+      return;
+    }
+
+    await onMessageUpdate(
+      client,
+      before.partial ? await before.fetch() : before,
+      after.partial ? await after.fetch() : after,
+    );
+  });
 
   if (await client.login(config.auth.token) !== config.auth.token) {
-    throw Error('Login failed!');
+    throw Error("Login failed!");
   } else {
-    console.log('Login succeeded.');
+    console.log("Login succeeded.");
   }
 }
