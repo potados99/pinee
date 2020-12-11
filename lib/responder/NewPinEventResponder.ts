@@ -3,6 +3,7 @@ import config from "../../config";
 import AskUser from "../interactor/AskUser";
 import ArchiveMessage from "../interactor/ArchiveMessage";
 import GetArchiveChannel from "../interactor/GetArchiveChannel";
+import { isFromNonPublicChannel, isFromNsfwChannel } from "../utils/message";
 
 export default class NewPinEventResponder {
 
@@ -17,36 +18,14 @@ export default class NewPinEventResponder {
   }
 
   public async handle() {
-    // Ask if this message is from private channel.
-    if (this.isMessageFromNonPublicChannel() && !await this.askIfUserWantsToPublishThis()) {
-      return;
+    if (isFromNonPublicChannel(this.message) || isFromNsfwChannel(this.message)) {
+      if (!await this.askIfUserWantsToPublishThis()) {
+        return;
+      }
     }
 
     // Perform archive
     await this.archiveMessage();
-  }
-
-  isMessageFromNonPublicChannel() {
-    // @ts-ignore
-    const channelPermissionsOverwrites: Map<string, PermissionOverwrites> = this.message.channel.permissionOverwrites;
-
-    for (const overwrite of channelPermissionsOverwrites.values()) {
-      const isAboutRole = overwrite.type === "role";
-      const isAboutMember = overwrite.type === "member";
-      const readDenied = overwrite.deny.bitfield & 1024;
-
-      if (isAboutRole && readDenied) {
-        console.log("This is a non-public channel for >= 1 role(s).");
-        return true;
-      }
-
-      if (isAboutMember && readDenied) {
-        console.log("This is a non-public channel for >= 1 member(s).");
-        return true;
-      }
-    }
-
-    return false;
   }
 
   async askIfUserWantsToPublishThis() {
@@ -62,6 +41,7 @@ export default class NewPinEventResponder {
 
     if (!archiveChannel) {
       console.log('No archive channel! :(');
+      return;
     }
 
     await new ArchiveMessage(this.client, this.message).execute(archiveChannel);

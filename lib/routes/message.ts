@@ -1,8 +1,14 @@
 import { Client, Message } from "discord.js";
 import config from "../../config";
 import CommandResponder from "../responder/CommandResponder";
+import { isFromDm } from "../utils/message";
 
 export async function onMessage(client: Client, message: Message) {
+  if (isFromDm(message)) {
+    // DM not allowed
+    return;
+  }
+
   if (isByThisBot(client, message)) {
     // Do not echo messages from this bot.
     return;

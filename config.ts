@@ -1,5 +1,6 @@
 import getEnv from "./lib/utils/env";
 import SyncCommand from "./lib/command/SyncCommand";
+import MigrateCommand from "./lib/command/MigrateCommand";
 
 export default {
   bot: {
@@ -10,7 +11,8 @@ export default {
   command: {
     prefix: '!!',
     list: [
-      new SyncCommand('고정메시지모두백업')
+      new SyncCommand('고정메시지모두백업'),
+      new MigrateCommand('마이그레이션시작')
     ]
   },
 
@@ -25,5 +27,9 @@ export default {
   archiveChannel: {
     channelName: '고정메시지',
     topicKeyword: '아카이브'
+  },
+
+  string: {
+    jumpToMessage: '메시지로 이동'
   }
 }

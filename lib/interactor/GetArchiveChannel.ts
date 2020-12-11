@@ -1,6 +1,7 @@
 import config from "../../config";
 import { Client, Guild, Message, TextChannel } from "discord.js";
 import AskUser from "./AskUser";
+import { findTextChannel, findTextChannelWithTopic } from "../utils/channel";
 
 export default class GetArchiveChannel {
 
@@ -19,16 +20,10 @@ export default class GetArchiveChannel {
   }
 
   async findOrCreateArchiveChannel() {
-    const allChannels = this.guild.channels.cache.array();
-
-    // Find channel of which topic has archive keyword.
-    const channelFound = allChannels.find((channel) => {
-      // @ts-ignore
-      return !!channel.topic && channel.type == "text" && channel.topic.includes(config.archiveChannel.topicKeyword);
-    });
+    const channelFound = findTextChannelWithTopic(this.guild, config.archiveChannel.topicKeyword);
 
     // Or create new one.
-    return channelFound as TextChannel || await this.createArchiveChannel();
+    return channelFound || await this.createArchiveChannel();
   }
 
   async createArchiveChannel() {

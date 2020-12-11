@@ -1,7 +1,13 @@
 import { Client, Message } from "discord.js";
 import NewPinEventResponder from "../responder/NewPinEventResponder";
+import { contentChanged, isByThisBot, isFromDm, isJustPinned, isNotPinned } from "../utils/message";
 
 export async function onMessageUpdate(client: Client, before: Message, after: Message) {
+  if (isFromDm(after)) {
+    // DM not allowed.
+    return;
+  }
+
   if (isByThisBot(client, after)) {
     // Do not echo messages from this bot.
     return;
@@ -12,24 +18,11 @@ export async function onMessageUpdate(client: Client, before: Message, after: Me
     return
   }
 
-  if (isNotPinned(after)) {
-    // Not pinned.
+  if (!isJustPinned(before, after)) {
+    // Not just pinned.
     return;
   }
 
   // Now this is a new pin event. Handle it.
   await new NewPinEventResponder(client, after).handle();
 }
-
-function isByThisBot(client: Client, message: Message) {
-  return message.author.id === client.user?.id;
-}
-
-function contentChanged(before: Message, after: Message) {
-  return before.content !== after.content;
-}
-
-function isNotPinned(message: Message) {
-  return !message.pinned;
-}
-

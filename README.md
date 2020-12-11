@@ -6,6 +6,8 @@
 
 [이 링크](https://discord.com/api/oauth2/authorize?client_id=786477765205426176&permissions=76880&scope=bot) 클릭
 
+[테스트](https://discord.com/api/oauth2/authorize?client_id=786876831181045781&permissions=93264&scope=bot)
+
 ## 사용
 
 ### 얘가 하는 일
