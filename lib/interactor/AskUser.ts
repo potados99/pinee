@@ -1,4 +1,4 @@
-import Discord, { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
+import { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
 import config from "../../config";
 import TellUser from "./TellUser";
 
