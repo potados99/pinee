@@ -12,7 +12,6 @@ export default class CommandResponder {
   }
 
   public async handle() {
-    // Extract command name.
     const commandName = this.message.content.slice(config.command.prefix.length); // Remove command prefix.
     if (!commandName) {
       return;
@@ -20,13 +19,11 @@ export default class CommandResponder {
 
     const allSupportedCommands = config.command.list;
 
-    // Find command using extracted name.
     const commandFound = allSupportedCommands.find((command) => command.getName() === commandName);
     if (!commandFound) {
       return;
     }
 
-    // Execute it.
     await commandFound.execute(this.client, this.message);
   }
 }

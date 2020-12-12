@@ -1,4 +1,4 @@
-import { Client, Guild, Message, PermissionOverwrites } from "discord.js";
+import { Client, Guild, Message } from "discord.js";
 import config from "../../config";
 import AskUser from "../interactor/AskUser";
 import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
@@ -24,7 +24,6 @@ export default class NewPinEventResponder {
       }
     }
 
-    // Perform archive
     await this.archiveMessage();
   }
 
