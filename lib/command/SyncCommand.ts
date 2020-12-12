@@ -54,7 +54,7 @@ export default class SyncCommand extends Command {
     const options = new SyncOptions();
 
     const keep = await new AskUser(client, message, true).execute({
-      title: '고정메시지 가져오기',
+      title: '동기화!',
       description: '모든 고정 메시지를 읽어서 오래된 메시지부터 아카이브합니다.' +
         '\n원본 메시지에는 영향이 없습니다.' +
         '\n' +
