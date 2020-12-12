@@ -6,7 +6,7 @@
 
 [이 링크](https://discord.com/api/oauth2/authorize?client_id=786477765205426176&permissions=76880&scope=bot) 클릭
 
-[테스트](https://discord.com/api/oauth2/authorize?client_id=786876831181045781&permissions=93264&scope=bot)
+>> 개발중인 봇은 [여기](https://discord.com/api/oauth2/authorize?client_id=786876831181045781&permissions=76880&scope=bot)
 
 ## 사용
 
@@ -24,9 +24,12 @@
 
 다음 명령을 지원합니다.
 
-#### !!고정메시지모두백업
+#### !!싱크
 
 > 이 명령은 서버 owner만 실행할 수 있습니다.
+
+
+
 
 봇이 실행되기 전에 존재하던 모든 고정 메시지를 아카이브합니다.
 

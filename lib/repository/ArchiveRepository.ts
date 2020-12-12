@@ -16,6 +16,12 @@ class ArchiveRepository {
   }
 
   async archiveMessageToChannel(message: Message, channel: TextChannel) {
+    const archive = await this.getArchiveByMessageId(message.client, message.guild!!, message.id);
+    if (archive) {
+      console.log(`But message '${message.id}' is already archived!`);
+      return;
+    }
+
     const embed = composeArchiveEmbed(message.guild!!, message);
 
     return await channel.send(embed);
