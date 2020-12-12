@@ -1,13 +1,12 @@
-import { Channel, DMChannel, Guild, GuildChannel, NewsChannel, PermissionOverwrites, TextChannel } from "discord.js";
-import config from "../../config";
+import { Channel, DMChannel, NewsChannel, PermissionOverwrites, TextChannel } from "discord.js";
 
 export function isNonPublicChannel(channel: TextChannel|DMChannel|NewsChannel /* Channels with message */) {
   // @ts-ignore
   const channelPermissionsOverwrites: Map<string, PermissionOverwrites> = channel.permissionOverwrites;
 
   for (const overwrite of channelPermissionsOverwrites.values()) {
-    const isAboutRole = overwrite.type === "role";
-    const isAboutMember = overwrite.type === "member";
+    const isAboutRole = overwrite.type === 'role';
+    const isAboutMember = overwrite.type === 'member';
     const readDenied = overwrite.deny.bitfield & 1024;
 
     if ((isAboutRole || isAboutMember) && readDenied) {
