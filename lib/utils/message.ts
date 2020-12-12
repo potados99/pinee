@@ -12,6 +12,7 @@ import Discord, {
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
 import ArchiveRepository from "../repository/ArchiveRepository";
+import archiveRepo from "../repository/ArchiveRepository";
 
 export function isByOwner(message: Message) {
   return message.author.id === message.guild!!.ownerID;
@@ -29,8 +30,12 @@ export function contentChanged(before: Message, after: Message) {
   return before.content !== after.content;
 }
 
+export function isPinned(message: Message) {
+  return message.pinned;
+}
+
 export function isNotPinned(message: Message) {
-  return !message.pinned;
+  return !isPinned(message);
 }
 
 export function isJustPinned(before: Message, after: Message) {
@@ -99,4 +104,10 @@ export function attachMessageLinkToEmbed(embed: MessageEmbed, serverId: string, 
 
 export function inPlaceSortDateAscending(messages: Message[]) {
   return messages.sort((left: Message, right: Message) => left.createdTimestamp - right.createdTimestamp);
+}
+
+export async function isArchived(client: Client, message: Message) {
+  const allArchivedIds = await archiveRepo.getAllArchivedMessageIds(client, message.guild!!);
+
+  return allArchivedIds.includes(message.id);
 }

@@ -4,9 +4,9 @@ import TellUser from "./TellUser";
 
 export default class AskUser {
 
-  private client: Client;
-  private message: Message;
-  private onlyAllowAnswerFromOwner: boolean;
+  private readonly client: Client;
+  private readonly message: Message;
+  private readonly onlyAllowAnswerFromOwner: boolean;
 
   private confirmOptions = ['✅', '❌'];
 

@@ -1,4 +1,4 @@
-import Discord from "discord.js";
+import Discord, { Message } from "discord.js";
 import { onReady } from "./routes/ready";
 import { onMessage } from "./routes/message";
 import { onMessageUpdate } from "./routes/update";
@@ -17,13 +17,13 @@ export default async function startBot() {
   });
 
   client.on("messageUpdate", async (before, after) => {
-    const beforeFetched = before.partial ? await before.fetch() : before;
-    const afterFetched = after.partial ? await after.fetch() : after;
+    before.partial ? await before.fetch() : 0;
+    after.partial ? await after.fetch() : 0;
 
     await onMessageUpdate(
       client,
-      beforeFetched,
-      afterFetched
+      before as Message,
+      after as Message
     );
   });
 

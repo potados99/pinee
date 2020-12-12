@@ -1,6 +1,15 @@
 import { Client, Message } from "discord.js";
 import NewPinEventResponder from "../responder/NewPinEventResponder";
-import { contentChanged, isByThisBot, isFromDm, isJustPinned, isNotPinned } from "../utils/message";
+import {
+  contentChanged,
+  isArchived,
+  isByThisBot,
+  isFromDm,
+  isJustPinned,
+  isNotPinned,
+  isPinned
+} from "../utils/message";
+import PinMessageUpdateResponder from "../responder/PinMessageUpdateResponder";
 
 export async function onMessageUpdate(client: Client, before: Message, after: Message) {
   if (isFromDm(after)) {
@@ -13,16 +22,18 @@ export async function onMessageUpdate(client: Client, before: Message, after: Me
     return;
   }
 
-  if (contentChanged(before, after)) {
-    // Not a pin event.
-    return
-  }
+  console.log(`content changed: ${contentChanged(before, after)}, pinned or archived: ${isPinned(after) || await isArchived(client, after)}`);
 
-  if (!isJustPinned(before, after)) {
-    // Not just pinned.
-    return;
-  }
+  if (!contentChanged(before, after) && isJustPinned(before, after)) {
+    // No content change && just pinned -> new pin event
+    console.log(`New pin event on message '${after.id}'!`);
 
-  // Now this is a new pin event. Handle it.
-  await new NewPinEventResponder(client, after).handle();
+    await new NewPinEventResponder(client, after).handle();
+  }
+  else if (contentChanged(before, after) && (isPinned(after) || await isArchived(client, after))) {
+    // Content is changed && pinned-or-archived -> pin or archive update event
+    console.log(`Update event on pinned-or-archived-message '${after.id}'!`);
+
+    await new PinMessageUpdateResponder(client, after).handle();
+  }
 }

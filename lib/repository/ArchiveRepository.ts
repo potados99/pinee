@@ -35,6 +35,13 @@ class ArchiveRepository {
     return allArchives;
   }
 
+  async getArchiveByMessageId(client: Client, guild: Guild, messageId: string) {
+    const allArchives = await this.getAllArchives(client, guild);
+
+    return allArchives
+      .find((arc: Message) => ArchiveRepository.extractChannelAndMessageId(ArchiveRepository.extractEmbed(arc)?.author?.url || null)?.messageId === messageId);
+  }
+
   async getAllArchivedMessageIds(client: Client, guild: Guild) {
     const allArchives = await this.getAllArchives(client, guild);
 
@@ -43,6 +50,17 @@ class ArchiveRepository {
       .filter((emb) => emb)
       // @ts-ignore
       .map((emb: MessageEmbed) => ArchiveRepository.extractChannelAndMessageId(emb.author.url)?.messageId);
+  }
+
+  async updateArchive(client: Client, message: Message) {
+    const archive = await this.getArchiveByMessageId(client, message.guild!!, message.id);
+
+    if (!archive) {
+      console.log(`Message '${message.id}' is not archived, so that cannot be updated!`);
+      return;
+    }
+
+    await archive.edit(composeArchiveEmbed(message.guild!!, message));
   }
 
   private static isArchive(client: Client, message: Message) {
