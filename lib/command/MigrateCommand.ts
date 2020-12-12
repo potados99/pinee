@@ -2,7 +2,7 @@ import Command from "./Command";
 import { Client, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
 import AskUser from "../interactor/AskUser";
 import config from "../../config";
-import GetArchiveChannel from "../interactor/GetArchiveChannel";
+import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
 import { composeArchiveEmbed, isByOwner, isByThisBot } from "../utils/message";
 
 export default class MigrateCommand extends Command {
@@ -29,7 +29,7 @@ export default class MigrateCommand extends Command {
   }
 
   private async performMigration(client: Client, message: Message) {
-    const archiveChannel = await new GetArchiveChannel(client, message).execute();
+    const archiveChannel = await new GetOrCreateArchiveChannel(client, message).execute();
     if (!archiveChannel) {
       console.log('No archive channel! :(');
       await message.reply('아카이브 채널이 아직 없네요ㅠ 마이그레이션을 중단합니다.')

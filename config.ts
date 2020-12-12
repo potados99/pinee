@@ -1,6 +1,7 @@
 import getEnv from "./lib/utils/env";
 import SyncCommand from "./lib/command/SyncCommand";
 import MigrateCommand from "./lib/command/MigrateCommand";
+import RestorePins from "./lib/command/RestorePins";
 
 export default {
   bot: {
@@ -12,7 +13,8 @@ export default {
     prefix: '!!',
     list: [
       new SyncCommand('고정메시지모두백업'),
-      new MigrateCommand('마이그레이션시작')
+      new MigrateCommand('마이그레이션시작'),
+      new RestorePins('고정메시지복구')
     ]
   },
 
@@ -21,7 +23,7 @@ export default {
   },
 
   confirmDialog: {
-    timeout: 30 * 1000
+    timeout: 90 * 1000
   },
 
   archiveChannel: {

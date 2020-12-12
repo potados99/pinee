@@ -1,9 +1,9 @@
 import { Client, Guild, Message, PermissionOverwrites } from "discord.js";
 import config from "../../config";
 import AskUser from "../interactor/AskUser";
-import ArchiveMessage from "../interactor/ArchiveMessage";
-import GetArchiveChannel from "../interactor/GetArchiveChannel";
+import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
 import { isFromNonPublicChannel, isFromNsfwChannel } from "../utils/message";
+import archiveRepo from "../repository/ArchiveRepository";
 
 export default class NewPinEventResponder {
 
@@ -37,13 +37,13 @@ export default class NewPinEventResponder {
   }
 
   async archiveMessage() {
-    const archiveChannel = await new GetArchiveChannel(this.client, this.message).execute();
+    const archiveChannel = await new GetOrCreateArchiveChannel(this.client, this.message).execute();
 
     if (!archiveChannel) {
       console.log('No archive channel! :(');
       return;
     }
 
-    await new ArchiveMessage(this.client, this.message).execute(archiveChannel);
+    await archiveRepo.archiveMessageToChannel(this.message, archiveChannel);
   }
 }

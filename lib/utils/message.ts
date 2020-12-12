@@ -1,4 +1,5 @@
 import Discord, {
+  Channel,
   Client,
   DMChannel,
   Guild,
@@ -8,7 +9,7 @@ import Discord, {
   PermissionOverwrites,
   TextChannel
 } from "discord.js";
-import isNsfwChannel, { isNonPublicChannel } from "./channel";
+import { isNonPublicChannel } from "./channel";
 import config from "../../config";
 
 export function isByOwner(message: Message) {
@@ -52,32 +53,6 @@ export function isFromNsfwChannel(message: Message) {
   return channel.nsfw;
 }
 
-export async function getAllPinsInThisGuild(guild: Guild, publicOnly: boolean = false) {
-  const allChannels = guild.channels.cache.array();
-
-  const allPins: Message[] = [];
-
-  for (const channel of allChannels) {
-    // Iterate through channels that has 'messages'.
-    if (!(channel instanceof TextChannel || channel instanceof NewsChannel)) {
-      continue;
-    }
-
-    // Backup only public channels/
-    if (publicOnly && (isNonPublicChannel(channel) || isNsfwChannel(channel))) {
-      continue;
-    }
-
-    const pins = (await channel.messages.fetchPinned()).array();
-    allPins.push(...pins);
-  }
-
-  // Create date ascending.
-  allPins.sort((left: Message, right: Message) => left.createdTimestamp - right.createdTimestamp);
-
-  return allPins;
-}
-
 export function composeArchiveEmbed(guild: Guild, message: Message) {
   const name = message.author.username;
   const avatarUrl = message.author.avatarURL();
@@ -119,4 +94,8 @@ export function attachMessageLinkToEmbed(embed: MessageEmbed, serverId: string, 
   const jumpToMessageLink = `\n\n[${config.string.jumpToMessage}](https://discordapp.com/channels/${serverId}/${channelId}/${messageId})`;
 
   embed.description += jumpToMessageLink;
+}
+
+export function inPlaceSortDateAscending(messages: Message[]) {
+  return messages.sort((left: Message, right: Message) => left.createdTimestamp - right.createdTimestamp);
 }

@@ -24,16 +24,16 @@ class ChannelRepository {
       predicate(channel)) as TextChannel;
   }
 
-  findTextChannelOfGuildWithTopic(guild: Guild, topic: string): TextChannel|undefined {
+  getTextChannelOfGuildWithTopic(guild: Guild, topic: string): TextChannel|undefined {
     return this.findTextChannelOfGuild(guild, (channel) =>
       !!channel.topic && channel.topic.includes(topic));
   }
 
   getArchiveChannel(guild: Guild): TextChannel|undefined {
-    return this.findTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
+    return this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
   }
 
-  findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel|NewsChannel|DMChannel) => boolean = () => true): Promise<(TextChannel|NewsChannel|DMChannel)[]> {
+  findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel|NewsChannel|DMChannel) => boolean = () => true): (TextChannel|NewsChannel|DMChannel)[] {
     const allChannels = guild.channels.cache.array();
 
     // @ts-ignore
@@ -42,3 +42,5 @@ class ChannelRepository {
 }
 
 const channelRepo = new ChannelRepository();
+
+export default channelRepo;

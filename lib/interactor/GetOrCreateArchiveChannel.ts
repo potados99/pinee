@@ -1,9 +1,9 @@
 import config from "../../config";
 import { Client, Guild, Message, TextChannel } from "discord.js";
 import AskUser from "./AskUser";
-import { findTextChannel, findTextChannelWithTopic } from "../utils/channel";
+import channelRepo from "../repository/ChannelRepository";
 
-export default class GetArchiveChannel {
+export default class GetOrCreateArchiveChannel {
 
   private readonly client: Client;
   private readonly message: Message;
@@ -20,7 +20,7 @@ export default class GetArchiveChannel {
   }
 
   async findOrCreateArchiveChannel() {
-    const channelFound = findTextChannelWithTopic(this.guild, config.archiveChannel.topicKeyword);
+    const channelFound = channelRepo.getArchiveChannel(this.guild);
 
     // Or create new one.
     return channelFound || await this.createArchiveChannel();

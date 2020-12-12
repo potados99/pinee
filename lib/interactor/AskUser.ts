@@ -1,16 +1,19 @@
 import Discord, { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
 import config from "../../config";
+import TellUser from "./TellUser";
 
 export default class AskUser {
 
   private client: Client;
   private message: Message;
+  private onlyAllowAnswerFromOwner: boolean;
 
   private confirmOptions = ['✅', '❌'];
 
-  constructor(client: Client, message: Message) {
+  constructor(client: Client, message: Message, onlyAllowAnswerFromOwner: boolean = false) {
     this.client = client;
     this.message = message;
+    this.onlyAllowAnswerFromOwner = onlyAllowAnswerFromOwner;
   }
 
   public async execute(messageData: MessageEmbedOptions) {
@@ -21,11 +24,7 @@ export default class AskUser {
   }
 
   private async ask(messageData: MessageEmbedOptions) {
-    // What to ask
-    const confirmDialogMessage = new Discord.MessageEmbed(messageData);
-
-    // Send a confirm message.
-    const confirmDialogSent = await this.message.reply(confirmDialogMessage);
+    const confirmDialogSent = await new TellUser(this.client, this.message).execute(messageData);
 
     // Attach reaction, letting user select one of the options.
     for (const option of this.confirmOptions) {
@@ -36,12 +35,12 @@ export default class AskUser {
   }
 
   private async waitForReply(dialogSent: Message) {
-    // A reaction shall be one of the confirmOptions and shall not be from this bot.
     const confirmReactionFilter = (reaction: MessageReaction, user: User) => {
       const oneOfAvailableOptions = this.confirmOptions.includes(reaction.emoji.name);
       const notByThisBot = user.id !== this.client.user?.id;
+      const byPermittedUser = !this.onlyAllowAnswerFromOwner || (user.id === dialogSent.guild!!.ownerID);
 
-      return oneOfAvailableOptions && notByThisBot;
+      return oneOfAvailableOptions && notByThisBot && byPermittedUser;
     };
 
     // Wait until first reaction or timeout.
