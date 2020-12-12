@@ -1,17 +1,12 @@
 import Discord, {
-  Channel,
   Client,
   DMChannel,
   Guild,
   Message, MessageEmbed,
-  NewsChannel,
   PartialMessage,
-  PermissionOverwrites,
-  TextChannel
 } from "discord.js";
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
-import ArchiveRepository from "../repository/ArchiveRepository";
 import archiveRepo from "../repository/ArchiveRepository";
 
 export function isByOwner(message: Message) {
@@ -24,6 +19,14 @@ export function isFromDm(message: Message | PartialMessage) {
 
 export function isByThisBot(client: Client, message: Message) {
   return message.author.id === client.user?.id;
+}
+
+export function isCommand(message: Message) {
+  return message.content.startsWith(config.command.prefix);
+}
+
+export function isNotCommand(message: Message) {
+  return !isCommand(message);
 }
 
 export function contentChanged(before: Message, after: Message) {
