@@ -3,8 +3,6 @@ import messageRepo from "../repository/MessageRepository";
 import archiveRepo from "../repository/ArchiveRepository";
 import SyncOptions from "./SyncOptions";
 import SyncParams from "./SyncParams";
-import TellUser from "../interactor/TellUser";
-import config from "../../config";
 import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
 
 export default class SyncService {
