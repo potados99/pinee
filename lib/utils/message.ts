@@ -11,6 +11,7 @@ import Discord, {
 } from "discord.js";
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
+import ArchiveRepository from "../repository/ArchiveRepository";
 
 export function isByOwner(message: Message) {
   return message.author.id === message.guild!!.ownerID;

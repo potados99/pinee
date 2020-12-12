@@ -1,19 +1,16 @@
 import Command from "./Command";
-import { Client, Guild, Message } from "discord.js";
+import { Client, Message } from "discord.js";
 import AskUser from "../interactor/AskUser";
 import config from "../../config";
-import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
 import { isByOwner } from "../utils/message";
-import messageRepo from "../repository/MessageRepository";
 import TellUser from "../interactor/TellUser";
 import archiveRepo from "../repository/ArchiveRepository";
-
-class SyncOptions {
-  public includeUnpinnedMessages: boolean = true;
-  public deleteAndRewrite: boolean = false;
-}
+import SyncOptions from "../service/SyncOptions";
+import SyncService from "../service/SyncService";
+import SyncParams from "../service/SyncParams";
 
 export default class SyncCommand extends Command {
+
   constructor(command: string) {
     super(command);
   }
@@ -22,6 +19,39 @@ export default class SyncCommand extends Command {
     if (!isByOwner(message)) {
       return;
     }
+
+    const options = await SyncCommand.askOptions(client, message);
+    if (!options) {
+      return;
+    }
+
+    const syncService = new SyncService(client, message);
+
+    const dialog_doingSomething = await new TellUser(client, message).execute({
+      title: '준비중입니다',
+      description: '조금 오래 걸릴 수 있습니다. 잠시만 기다려 주세요 ㅎㅎ',
+      color: config.bot.themeColor
+    })
+
+    const preSyncResult = await syncService.preSync(options);
+    const previewMessage = await SyncCommand.getPreviewMessage(options, preSyncResult);
+
+    await dialog_doingSomething.delete();
+
+    const finalConfirm = await new AskUser(client, message).execute({
+      title: '최종 확인',
+      description: previewMessage,
+      color: config.bot.themeColor
+    })
+    if (!finalConfirm) {
+      return;
+    }
+
+    await syncService.sync(preSyncResult);
+  }
+
+  private static async askOptions(client: Client, message: Message) {
+    const options = new SyncOptions();
 
     const keep = await new AskUser(client, message, true).execute({
       title: '고정메시지 가져오기',
@@ -34,10 +64,8 @@ export default class SyncCommand extends Command {
     });
 
     if (!keep) {
-      return;
+      return null;
     }
-
-    const options = new SyncOptions();
 
     options.includeUnpinnedMessages = await new AskUser(client, message, true).execute({
       title: '고정 해제된 메시지 포함 여부',
@@ -66,42 +94,13 @@ export default class SyncCommand extends Command {
       });
     }
 
-    const dialog_doingSomething = await new TellUser(client, message).execute({
-      title: '준비중입니다',
-      description: '조금 오래 걸릴 수 있습니다. 잠시만 기다려 주세요 ㅎㅎ',
-      color: config.bot.themeColor
-    })
-
-    const previewMessage = await this.getPreviewMessage(client, message.guild!!, options);
-    await dialog_doingSomething.delete();
-
-    const finalConfirm = await new AskUser(client, message).execute({
-      title: '최종 확인',
-      description: previewMessage,
-      color: config.bot.themeColor
-    })
-
-    if (!finalConfirm) {
-      return;
-    }
-
-    await this.sync(client, message, options);
+    return options;
   }
 
-  private async getPreviewMessage(client: Client, guild: Guild, options: SyncOptions) {
-    const targetMessages = options.includeUnpinnedMessages ?
-      await messageRepo.getAllOncePinnedMessagesOfGuild(guild) :
-      await messageRepo.getAllCurrentlyPinedMessagesOfGuild(guild);
-
-    const existingArchived = await archiveRepo.getAllArchives(client, guild);
-
-    const numberOfBackupTargets = targetMessages.length;
-    const numberOfArchivesToDelete = options.deleteAndRewrite ?
-      existingArchived.length :
-      0;
-    const numberOfArchivedToAdd = options.deleteAndRewrite ?
-      targetMessages.length :
-      Math.min(targetMessages.length - existingArchived.length, 0);
+  private static async getPreviewMessage(options: SyncOptions, preSyncResult: SyncParams) {
+    const numberOfBackupTargets = preSyncResult.targetMessages.length;
+    const numberOfArchivesToDelete = preSyncResult.archivesToBeDeleted.length;
+    const numberOfArchivedToAdd = preSyncResult.messagesToBeArchived.length;
 
     return '**백업 옵션**' +
       `\n고정 해제된 메시지 포함: ${options.includeUnpinnedMessages}` +
@@ -115,38 +114,4 @@ export default class SyncCommand extends Command {
       '\n**원본에는 영향이 없습니다.**' +
       '\n계속 하시겠습니까?';
   }
-
-
-  private async sync(client: Client, message: Message, options: SyncOptions) {
-    console.log(options);
-    const targetMessages = options.includeUnpinnedMessages ?
-      await messageRepo.getAllOncePinnedMessagesOfGuild(message.guild!!) :
-      await messageRepo.getAllCurrentlyPinedMessagesOfGuild(message.guild!!);
-
-    console.log(targetMessages.map(m => m.content));
-  }
-
-
-/*
-  private static async performSync(client: Client, message: Message) {
-    const archiveChannel = await new GetOrCreateArchiveChannel(client, message).execute();
-    if (!archiveChannel) {
-      console.log('No archive channel! :(');
-      await message.reply('아카이브 채널이 없어 백업을 수행할 수 없습니다 ㅠ')
-      return;
-    }
-
-    const allPins = await messageRepo.getAllCurrentlyPinedMessagesOfGuild(message.guild!!, false);
-    const progressMessage = await message.reply(`백업 중... 0/${allPins.length}`);
-
-    for (let i = 0; i < allPins.length; i++) {
-      await progressMessage.edit(`백업 중... ${i+1}/${allPins.length}`);
-
-      const pin = allPins[i];
-      await new ArchiveMessage(client, pin).execute(archiveChannel);
-    }
-
-    await progressMessage.edit(`${allPins.length}개의 고정 메시지를 '${archiveChannel.name}' 채널로 복사하였습니다.`);
-  }
-  */
 }

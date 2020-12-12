@@ -1,6 +1,5 @@
 import channelRepo from "./ChannelRepository";
-import { Client, Guild, Message, TextChannel } from "discord.js";
-import config from "../../config";
+import { Client, Guild, Message, MessageEmbed, TextChannel } from "discord.js";
 import { composeArchiveEmbed, isByThisBot } from "../utils/message";
 import messageRepo from "./MessageRepository";
 
@@ -34,6 +33,16 @@ class ArchiveRepository {
     const allArchives: Message[] = allMessagesInArchiveChannel.filter((message) => ArchiveRepository.isArchive(client, message));
 
     return allArchives;
+  }
+
+  async getAllArchivedMessageIds(client: Client, guild: Guild) {
+    const allArchives = await this.getAllArchives(client, guild);
+
+    return allArchives
+      .map((arc) => ArchiveRepository.extractEmbed(arc))
+      .filter((emb) => emb)
+      // @ts-ignore
+      .map((emb: MessageEmbed) => ArchiveRepository.extractChannelAndMessageId(emb.author.url)?.messageId);
   }
 
   private static isArchive(client: Client, message: Message) {
