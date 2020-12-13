@@ -13,6 +13,6 @@ export default class Command {
   }
 
   async execute(client: Client, message: Message) {
-    throw new Error('Not implemented!');
+    throw new Error("Not implemented!");
   }
 }

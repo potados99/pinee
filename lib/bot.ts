@@ -7,15 +7,15 @@ import config from "../config";
 export default async function startBot() {
   const client = new Discord.Client({ partials: ["MESSAGE"] }); // Listen for changes on previous messages.
 
-  client.on('ready', async () => {
+  client.on("ready", async () => {
     await onReady(client);
   });
 
-  client.on('message', async (message) => {
+  client.on("message", async (message) => {
     await onMessage(client, message);
   });
 
-  client.on('messageUpdate', async (before, after) => {
+  client.on("messageUpdate", async (before, after) => {
     if (before.partial) await before.fetch();
     if (after.partial) await after.fetch();
 

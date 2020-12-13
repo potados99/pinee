@@ -28,7 +28,7 @@ class ArchiveRepository {
 
     console.log(`Archive '${newlyArchived.id}' for message '${message.id}' created in '${channel.name}' channel.`);
 
-    return newlyArchived
+    return newlyArchived;
   }
 
   async getAllArchives(client: Client, guild: Guild) {
@@ -111,7 +111,7 @@ class ArchiveRepository {
     return embed;
   }
 
-  private static extractChannelAndMessageId(url: string|null) {
+  private static extractChannelAndMessageId(url: string | null) {
     if (!url) {
       return null;
     }

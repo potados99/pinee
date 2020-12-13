@@ -39,19 +39,19 @@ export default class SyncService {
   public async sync(params: SyncParams) {
     const channel = await new GetOrCreateArchiveChannel(this.client, this.message).execute();
     if (!channel) {
-      await this.message.reply('아카이브 채널이 없어 백업을 시작할 수 없습니다 ㅠ');
+      await this.message.reply("아카이브 채널이 없어 백업을 시작할 수 없습니다 ㅠ");
       return;
     }
 
-    const alert = await this.message.reply(SyncService.composeProgress('백업을 시작합니다.'));
+    const alert = await this.message.reply(SyncService.composeProgress("백업을 시작합니다."));
 
     for (const [i, archive] of params.archivesToBeDeleted.entries()) {
-      await alert.edit(SyncService.composeProgress('기존 백업을 삭제합니다', i+1, params.archivesToBeDeleted.length));
+      await alert.edit(SyncService.composeProgress("기존 백업을 삭제합니다", i + 1, params.archivesToBeDeleted.length));
       await archive.delete();
     }
 
     for (const [i, message] of params.messagesToBeArchived.entries()) {
-      await alert.edit(SyncService.composeProgress('메시지를 아카이브합니다', i+1, params.messagesToBeArchived.length));
+      await alert.edit(SyncService.composeProgress("메시지를 아카이브합니다", i + 1, params.messagesToBeArchived.length));
       await archiveRepo.archiveMessageToChannel(message, channel);
     }
 
@@ -59,6 +59,6 @@ export default class SyncService {
   }
 
   private static composeProgress(body: string, current?: number, all?: number) {
-    return body + ((current !== undefined && all !== undefined) ? `...${current}/${all}` : '');
+    return body + ((current !== undefined && all !== undefined) ? `...${current}/${all}` : "");
   }
 }

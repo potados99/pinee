@@ -5,7 +5,7 @@ export default class TellUser {
   private client: Client;
   private message: Message;
 
-  constructor(client: Client, message: Message, onlyAllowAnswerFromOwner: boolean = false) {
+  constructor(client: Client, message: Message) {
     this.client = client;
     this.message = message;
   }

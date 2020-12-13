@@ -15,7 +15,7 @@ class ChannelRepository {
     return allChannels.filter((channel) => predicate(channel));
   }
 
-  findTextChannelOfGuild(guild: Guild, predicate: (channel: TextChannel) => boolean): TextChannel|undefined {
+  findTextChannelOfGuild(guild: Guild, predicate: (channel: TextChannel) => boolean): TextChannel | undefined {
     const allChannels = guild.channels.cache.array();
 
     return allChannels.find((channel) =>
@@ -23,12 +23,12 @@ class ChannelRepository {
     ) as TextChannel;
   }
 
-  getTextChannelOfGuildWithTopic(guild: Guild, topic: string): TextChannel|undefined {
+  getTextChannelOfGuildWithTopic(guild: Guild, topic: string): TextChannel | undefined {
     return this.findTextChannelOfGuild(guild, (channel) =>
       !!channel.topic && channel.topic.includes(topic));
   }
 
-  getArchiveChannel(guild: Guild): TextChannel|undefined {
+  getArchiveChannel(guild: Guild): TextChannel | undefined {
     const channelFound = this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
 
     if (channelFound) {
@@ -38,7 +38,7 @@ class ChannelRepository {
     return channelFound;
   }
 
-  findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel|NewsChannel|DMChannel) => boolean = () => true): (TextChannel|NewsChannel|DMChannel)[] {
+  findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel | NewsChannel | DMChannel) => boolean = () => true): (TextChannel | NewsChannel | DMChannel)[] {
     const allChannels = guild.channels.cache.array();
 
     // @ts-ignore

@@ -40,7 +40,7 @@ export default class NewPinEventResponder implements Responder {
     const archiveChannel = await new GetOrCreateArchiveChannel(this.client, this.message).execute();
 
     if (!archiveChannel) {
-      console.log('No archive channel! :(');
+      console.log("No archive channel! :(");
       return;
     }
 

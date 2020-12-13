@@ -13,7 +13,7 @@ export default class AskUserBoolean {
     this.client = client;
     this.message = message;
     this.options = {
-      choices: ['✅', '❌'],
+      choices: ["✅", "❌"],
       onlyForOwner,
       replyTimeout: config.confirmDialog.timeout
     };
@@ -22,6 +22,6 @@ export default class AskUserBoolean {
   public async execute(messageData: MessageEmbedOptions) {
     const reply = await new AskUserWithOptions(this.client, this.message, this.options).execute(messageData);
 
-    return !!reply && reply === '✅';
+    return !!reply && reply === "✅";
   }
 }
