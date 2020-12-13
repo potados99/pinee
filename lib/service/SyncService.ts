@@ -55,7 +55,7 @@ export default class SyncService {
       await archiveRepo.archiveMessageToChannel(message, channel);
     }
 
-    await alert.edit(`${params.messagesToBeArchived.length}개의 메시지를 ${channel.name} 채널로 복사했습니다.`);
+    await alert.edit(`${params.messagesToBeArchived.length}개의 메시지를 ${channel} 채널로 복사했습니다.`);
   }
 
   private static composeProgress(body: string, current?: number, all?: number) {
