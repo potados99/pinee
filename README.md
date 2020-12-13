@@ -174,4 +174,4 @@ event
 
 각 `responder`는 이벤트를 처리하기 위해 `command`, `service`에게 작업을 맡기거나 직접 `repository`에 접근하여 요청을 처리할 수 있습니다.
 
-`command`, `service`, `repository`는 주어진 일을 수행하기 위해 `interactor`나 `utils`를, 혹은 모두를 사용할 수 있습니다.
+`command`, `service`, `repository`는 주어진 일을 수행하기 위해 `interactor`나 `utils`, 혹은 모두를 사용할 수 있습니다.
