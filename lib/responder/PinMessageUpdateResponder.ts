@@ -1,7 +1,8 @@
 import { Client, Message } from "discord.js";
 import archiveRepo from "../repository/ArchiveRepository";
+import Responder from "./Responder";
 
-export default class PinMessageUpdateResponder {
+export default class PinMessageUpdateResponder implements Responder {
 
   private readonly client: Client;
   private readonly message: Message;

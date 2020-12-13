@@ -120,14 +120,10 @@ class MessageRepository {
   async getAllOncePinnedMessagesOfGuild(guild: Guild, publicOnly: boolean = false) {
     const allPinSystemMessages = await this.getAllPinSystemMessagesOfGuild(guild);
 
-    console.log(`allPinSystemMessages: ${allPinSystemMessages.length}`);
-
     // @ts-ignore
     const allReferences: MessageReference[] = allPinSystemMessages
       .map(message => message.reference)
       .filter((ref) => ref);
-
-    console.log(`allReferences: ${allReferences.length}`);
 
     const uniqueReferences = this.removeDuplicates(allReferences);
 

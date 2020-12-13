@@ -11,11 +11,11 @@ import {
 import PinMessageUpdateResponder from "../responder/PinMessageUpdateResponder";
 
 export async function onMessageUpdate(client: Client, before: Message, after: Message) {
-  if (isFromDm(after)) {
+  if (isByThisBot(client, after)) {
     return;
   }
 
-  if (isByThisBot(client, after)) {
+  if (isFromDm(after)) {
     return;
   }
 
@@ -23,10 +23,13 @@ export async function onMessageUpdate(client: Client, before: Message, after: Me
     console.log(`New pin event on message '${after.id}'`);
 
     await new NewPinEventResponder(client, after).handle();
+    return;
   }
-  else if (contentChanged(before, after) && (isPinned(after) || await isArchived(client, after))) {
+
+  if (contentChanged(before, after) && (isPinned(after) || await isArchived(client, after))) {
     console.log(`Update event on pinned-or-archived-message '${after.id}'`);
 
     await new PinMessageUpdateResponder(client, after).handle();
+    return;
   }
 }

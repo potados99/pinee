@@ -4,8 +4,9 @@ import AskUser from "../interactor/AskUser";
 import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
 import { isFromNonPublicChannel, isFromNsfwChannel } from "../utils/message";
 import archiveRepo from "../repository/ArchiveRepository";
+import Responder from "./Responder";
 
-export default class NewPinEventResponder {
+export default class NewPinEventResponder implements Responder {
 
   private readonly client: Client;
   private readonly message: Message;

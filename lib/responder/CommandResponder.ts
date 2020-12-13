@@ -1,7 +1,8 @@
 import { Client, Message } from "discord.js";
 import config from "../../config";
+import Responder from "./Responder";
 
-export default class CommandResponder {
+export default class CommandResponder implements Responder {
 
   private readonly client: Client;
   private readonly message: Message;
