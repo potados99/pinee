@@ -83,13 +83,13 @@ export function composeArchiveEmbed(guild: Guild, message: Message) {
     author: {
       name: name,
       iconURL: avatarUrl || undefined,
-      url: `https://discordapp.com/channels/${server}/${channelId}/${messageId}`
+      url: messageUrl
     },
     image: {
       url: firstImageUrl
     },
     footer: {
-      text: `${channelName}`
+      text: channelName
     }
   });
 }
