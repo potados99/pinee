@@ -29,13 +29,7 @@ class ChannelRepository {
   }
 
   getArchiveChannel(guild: Guild): TextChannel | undefined {
-    const channelFound = this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
-
-    if (channelFound) {
-      console.log(`Got archived channel '${channelFound?.name}'.`);
-    }
-
-    return channelFound;
+    return this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
   }
 
   findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel | NewsChannel | DMChannel) => boolean = () => true): (TextChannel | NewsChannel | DMChannel)[] {

@@ -46,8 +46,6 @@ class ArchiveRepository {
 
     const allArchives: Message[] = allMessagesInArchiveChannel.filter((message) => ArchiveRepository.isArchive(client, message));
 
-    console.log(`Got ${allArchives.length} archives.`);
-
     return allArchives;
   }
 
