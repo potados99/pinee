@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/tarvern-pin-archiver.iml" filepath="$PROJECT_DIR$/.idea/tarvern-pin-archiver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/pinee.iml" filepath="$PROJECT_DIR$/.idea/pinee.iml" />
     </modules>
   </component>
 </project>
