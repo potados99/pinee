@@ -4,9 +4,9 @@
 
 ## 설치
 
-- ### [지금 설치 가능한 봇](https://discord.com/api/oauth2/authorize?client_id=786477765205426176&permissions=76880&scope=bot)
+- ### [서버에 pinee 설치하기](https://discord.com/api/oauth2/authorize?client_id=786477765205426176&permissions=76880&scope=bot)
 
-- [개발자가 개발용으로 혼자 쓰는 봇](https://discord.com/api/oauth2/authorize?client_id=786876831181045781&permissions=76880&scope=bot)
+- [개발중인 pinee 테스트하기](https://discord.com/api/oauth2/authorize?client_id=786876831181045781&permissions=76880&scope=bot)
 
 ## 사용
 
