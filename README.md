@@ -1,5 +1,7 @@
 # 📌pinee📌
 
+<img src="https://user-images.githubusercontent.com/35878712/102021709-14b21980-3dc5-11eb-9192-b4dc8470a6e2.png" alt="pinee" width="128"/>
+
 메시지에 핀 꽂히면 아카이브 채널에다가 기록해주는 봇입니다.
 
 ## 설치
