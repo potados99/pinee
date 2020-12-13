@@ -26,9 +26,15 @@ class ArchiveRepository {
 
     const newlyArchived = await channel.send(embed);
 
-    console.log(`Archive '${newlyArchived.id}' for message '${message.id}' created in '${channel.name}' channel.`);
+    console.log(`New archive '${newlyArchived.id}' of message '${message.id}' created in '${channel.name}' channel.`);
 
     return newlyArchived;
+  }
+
+  async deleteArchive(archive: Message) {
+    await archive.delete();
+
+    console.log(`Archive ${archive.id} deleted.`);
   }
 
   async getAllArchives(client: Client, guild: Guild) {

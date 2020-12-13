@@ -108,8 +108,8 @@ export default class SyncCommand extends Command {
     const numberOfArchivedToAdd = preSyncResult.messagesToBeArchived.length;
 
     return "**백업 옵션**" +
-      `\n- 고정 해제된 메시지 포함: ${options.includeUnpinnedMessages}` +
-      `\n- 백업 덮어쓰기: ${options.deleteAndRewrite}` +
+      `\n- 고정 해제된 메시지 포함: ${options.includeUnpinnedMessages ? '웅' : '아니'}` +
+      `\n- 백업 덮어쓰기: ${options.deleteAndRewrite ? '웅' : '아니'}` +
       "\n" +
       "\n**변경 예정**" +
       `\n- 백업 대상 메시지: ${numberOfBackupTargets}개` +

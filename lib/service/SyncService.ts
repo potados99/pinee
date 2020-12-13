@@ -39,15 +39,18 @@ export default class SyncService {
   public async sync(params: SyncParams) {
     const channel = await new GetOrCreateArchiveChannel(this.client, this.message).execute();
     if (!channel) {
+      console.warn('Aborting sync: no archive channel found.');
       await this.message.reply("아카이브 채널이 없어 백업을 시작할 수 없습니다 ㅠ");
       return;
     }
+
+    console.log(`Sync: ${params.targetMessages.length} target messages. In channel '${channel.name}', ${params.archivesToBeDeleted.length} will be deleted, and ${params.messagesToBeArchived.length} will be archived.`);
 
     const alert = await this.message.reply(SyncService.composeProgress("백업을 시작합니다."));
 
     for (const [i, archive] of params.archivesToBeDeleted.entries()) {
       await alert.edit(SyncService.composeProgress("기존 백업을 삭제합니다", i + 1, params.archivesToBeDeleted.length));
-      await archive.delete();
+      await archiveRepo.deleteArchive(archive);
     }
 
     for (const [i, message] of params.messagesToBeArchived.entries()) {
