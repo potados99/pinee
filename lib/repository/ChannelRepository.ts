@@ -1,5 +1,5 @@
 import { DMChannel, Guild, GuildChannel, NewsChannel, TextChannel } from "discord.js";
-import { isMessageChannel } from "../utils/channel";
+import { isMessageChannel, isTextChannel } from "../utils/channel";
 import config from "../../config";
 
 /**
@@ -19,9 +19,8 @@ class ChannelRepository {
     const allChannels = guild.channels.cache.array();
 
     return allChannels.find((channel) =>
-      (channel.type === 'text') &&
-      (channel instanceof TextChannel) &&
-      predicate(channel)) as TextChannel;
+      isTextChannel(channel) && predicate(channel as TextChannel)
+    ) as TextChannel;
   }
 
   getTextChannelOfGuildWithTopic(guild: Guild, topic: string): TextChannel|undefined {
@@ -30,7 +29,13 @@ class ChannelRepository {
   }
 
   getArchiveChannel(guild: Guild): TextChannel|undefined {
-    return this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
+    const channelFound = this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
+
+    if (channelFound) {
+      console.log(`Got archived channel '${channelFound?.name}'.`);
+    }
+
+    return channelFound;
   }
 
   findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel|NewsChannel|DMChannel) => boolean = () => true): (TextChannel|NewsChannel|DMChannel)[] {

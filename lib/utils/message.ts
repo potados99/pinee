@@ -1,10 +1,4 @@
-import Discord, {
-  Client,
-  DMChannel,
-  Guild,
-  Message, MessageEmbed,
-  PartialMessage,
-} from "discord.js";
+import Discord, { Client, DMChannel, Guild, Message, PartialMessage } from "discord.js";
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
 import archiveRepo from "../repository/ArchiveRepository";
@@ -74,7 +68,8 @@ export function composeArchiveEmbed(guild: Guild, message: Message) {
   const firstImageUrl = message.attachments.first()?.url;
 
   // User can explicitly click this link.
-  const jumpToMessageLink = `\n\n[${config.string.jumpToMessage}](https://discordapp.com/channels/${server}/${channelId}/${messageId})`;
+  const messageUrl = `https://discordapp.com/channels/${server}/${channelId}/${messageId}`;
+  const jumpToMessageLink = `\n\n[${config.string.jumpToMessage}](${messageUrl})`;
 
   let channelName; // No channel name on DMChannel.
   if (!(message.channel instanceof DMChannel)) {
@@ -97,12 +92,6 @@ export function composeArchiveEmbed(guild: Guild, message: Message) {
       text: `${channelName}`
     }
   });
-}
-
-export function attachMessageLinkToEmbed(embed: MessageEmbed, serverId: string, channelId: string, messageId: string) {
-  const jumpToMessageLink = `\n\n[${config.string.jumpToMessage}](https://discordapp.com/channels/${serverId}/${channelId}/${messageId})`;
-
-  embed.description += jumpToMessageLink;
 }
 
 export function inPlaceSortDateAscending(messages: Message[]) {

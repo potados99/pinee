@@ -46,12 +46,12 @@ export default class SyncService {
     const alert = await this.message.reply(SyncService.composeProgress('백업을 시작합니다.'));
 
     for (const [i, archive] of params.archivesToBeDeleted.entries()) {
-      await alert.edit(SyncService.composeProgress('기존 백업을 삭제합니다', i, params.archivesToBeDeleted.length));
+      await alert.edit(SyncService.composeProgress('기존 백업을 삭제합니다', i+1, params.archivesToBeDeleted.length));
       await archive.delete();
     }
 
     for (const [i, message] of params.messagesToBeArchived.entries()) {
-      await alert.edit(SyncService.composeProgress('메시지를 아카이브합니다', i, params.messagesToBeArchived.length));
+      await alert.edit(SyncService.composeProgress('메시지를 아카이브합니다', i+1, params.messagesToBeArchived.length));
       await archiveRepo.archiveMessageToChannel(message, channel);
     }
 

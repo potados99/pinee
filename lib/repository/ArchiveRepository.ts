@@ -24,12 +24,20 @@ class ArchiveRepository {
 
     const embed = composeArchiveEmbed(message.guild!!, message);
 
-    return await channel.send(embed);
+    const newlyArchived = await channel.send(embed);
+
+    console.log(`Archive '${newlyArchived.id}' for message '${message.id}' created in '${channel.name}' channel.`);
+
+    return newlyArchived
   }
 
   async getAllArchives(client: Client, guild: Guild) {
     const archiveChannel = channelRepo.getArchiveChannel(guild);
 
+    return this.getAllArchivesFromChannel(client, archiveChannel);
+  }
+
+  async getAllArchivesFromChannel(client: Client, archiveChannel?: TextChannel) {
     if (!archiveChannel) {
       return [];
     }
@@ -37,6 +45,8 @@ class ArchiveRepository {
     const allMessagesInArchiveChannel = await messageRepo.getAllMessagesOfChannel(archiveChannel);
 
     const allArchives: Message[] = allMessagesInArchiveChannel.filter((message) => ArchiveRepository.isArchive(client, message));
+
+    console.log(`Got ${allArchives.length} archives.`);
 
     return allArchives;
   }

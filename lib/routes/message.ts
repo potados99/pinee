@@ -9,14 +9,14 @@ export async function onMessage(client: Client, message: Message) {
   }
 
   if (isFromDm(message)) {
-    console.log(`New DM event: ${message.content}`);
+    console.log(`New DM event: '${message.content}'`);
 
     await new DmResponder(client, message).handle();
     return;
   }
 
   if (isCommand(message)) {
-    console.log(`New command event: ${message.content}`);
+    console.log(`New command event: '${message.content}'`);
 
     await new CommandResponder(client, message).handle();
     return;

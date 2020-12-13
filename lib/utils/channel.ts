@@ -31,3 +31,8 @@ export function isMessageChannel(channel: Channel) {
     (channel.type === 'news' && channel instanceof NewsChannel)) ||
     (channel.type === 'dm' && channel instanceof DMChannel);
 }
+
+export function isTextChannel(channel: Channel) {
+  return ((channel.type === 'text' && channel instanceof TextChannel) ||
+    (channel.type === 'news' && channel instanceof NewsChannel));
+}

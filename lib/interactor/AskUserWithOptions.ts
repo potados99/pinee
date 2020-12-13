@@ -1,33 +1,30 @@
 import { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
-import config from "../../config";
 import TellUser from "./TellUser";
+import AskOptions from "./AskOptions";
 
-export default class AskUser {
+export default class AskUserWithOptions {
 
   private readonly client: Client;
   private readonly message: Message;
-  private readonly onlyAllowAnswerFromOwner: boolean;
+  private readonly options: AskOptions;
 
-  private confirmOptions = ['✅', '❌'];
-
-  constructor(client: Client, message: Message, onlyAllowAnswerFromOwner: boolean = false) {
+  constructor(client: Client, message: Message, options: AskOptions) {
     this.client = client;
     this.message = message;
-    this.onlyAllowAnswerFromOwner = onlyAllowAnswerFromOwner;
+    this.options = options;
   }
 
   public async execute(messageData: MessageEmbedOptions) {
     const dialogSent = await this.ask(messageData);
-    const reply = await this.waitForReply(dialogSent);
 
-    return !!reply && reply === '✅';
+    return await this.waitForReply(dialogSent);
   }
 
   private async ask(messageData: MessageEmbedOptions) {
     const confirmDialogSent = await new TellUser(this.client, this.message).execute(messageData);
 
     // Attach reaction, letting user select one of the options.
-    for (const option of this.confirmOptions) {
+    for (const option of this.options.choices!!) {
       await confirmDialogSent.react(option);
     }
 
@@ -36,15 +33,15 @@ export default class AskUser {
 
   private async waitForReply(dialogSent: Message) {
     const confirmReactionFilter = (reaction: MessageReaction, user: User) => {
-      const oneOfAvailableOptions = this.confirmOptions.includes(reaction.emoji.name);
+      const oneOfAvailableOptions = this.options.choices!!.includes(reaction.emoji.name);
       const notByThisBot = user.id !== this.client.user?.id;
-      const byPermittedUser = !this.onlyAllowAnswerFromOwner || (user.id === dialogSent.guild!!.ownerID);
+      const byPermittedUser = !this.options.onlyForOwner || (user.id === dialogSent.guild!!.ownerID);
 
       return oneOfAvailableOptions && notByThisBot && byPermittedUser;
     };
 
     // Wait until first reaction or timeout.
-    const awaitOptions = { max: 1, time: config.confirmDialog.timeout };
+    const awaitOptions = { max: 1, time: this.options.replyTimeout };
 
     // Wait for user's answer
     const usersAnswer = await dialogSent.awaitReactions(confirmReactionFilter, awaitOptions);

@@ -1,6 +1,4 @@
-# tarvern-pin-archiver
-
-*pinee*
+# 📌Pinee📌
 
 메시지에 핀 꽂히면 아카이브 채널에다가 기록해주는 봇입니다.
 
@@ -126,3 +124,49 @@
 ### 2020.12.10 v1.0.0
 - 새로 고정된 메시지 아카이브.
 - 수동 아카이브 명령 `!!고정메시지모두백업` 제공.
+
+## 프로젝트 구조
+
+### 소스 구조
+
+~~~
+pinee/
+  └ lib/           
+    └ command/      → 명령어의 선언과 구현체.
+    └ interactor/   → 사용자와 양방향 소통하는 루틴.
+    └ repository/   → 채널, 메시지 등을 가져올 수 있는 저장소.
+    └ responder/    → 이벤트에 대한 적절한 응답을 제공하는 응답기.
+    └ routes/       → 이벤트를 처리하는 최상위 라우터.
+    └ services/     → 복잡하고 오래 걸리는 이벤트 로직을 정의하는 서비스.
+    └ utils/        → 구현에 필요한 유틸리티.
+    bot.ts          → 봇의 기본 동작 정의.
+  └ config.ts       → 설정 파일.
+  ...
+  └ package.json    → 프로젝트 정보.
+  └ index.ts        → 프로그램의 진입점.
+  └ README.md       → 이 문서.
+~~~
+
+### 실행 흐름
+
+~~~
+event 
+    -> route 
+        -> responder 
+            -> command
+                -> interactor
+                -> utils
+                -> ...
+            -> service
+                -> ...
+            -> repository
+                -> ...
+~~~
+
+이벤트가 발생하면 `bot.ts`에서 지정한 이벤트 리스너가 호출됩니다. 해당 리스너는 적절한 `router`를 호출합니다.
+
+`router`는 요청의 유효성을 검증하는 역할을 합니다. 유효한 요청은 `responder`에게로 전달됩니다.
+
+각 `responder`는 이벤트를 처리하기 위해 `command`, `service`에게 작업을 맡기거나 직접 `repository`에 접근하여 요청을 처리할 수 있습니다.
+
+`command`, `service`, `repository`는 주어진 일을 수행하기 위해 `interactor`나 `utils`를, 혹은 모두를 사용할 수 있습니다.

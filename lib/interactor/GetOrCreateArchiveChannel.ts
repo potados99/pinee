@@ -1,6 +1,6 @@
 import config from "../../config";
 import { Client, Guild, Message } from "discord.js";
-import AskUser from "./AskUser";
+import AskUserBoolean from "./AskUserBoolean";
 import channelRepo from "../repository/ChannelRepository";
 
 export default class GetOrCreateArchiveChannel {
@@ -28,7 +28,7 @@ export default class GetOrCreateArchiveChannel {
   async createArchiveChannel() {
     let newChannelName = config.archiveChannel.channelName;
 
-    const create = await new AskUser(this.client, this.message).execute(
+    const create = await new AskUserBoolean(this.client, this.message).execute(
       {
         title: "아카이브 채널을 만들까요?",
         description: `토픽에 '${config.archiveChannel.topicKeyword}'이(가) 들어간 채널이 아직 없습니다. '${newChannelName}'(이)라는 이름으로 새 채널을 생성할까요?`,
