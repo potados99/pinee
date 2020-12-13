@@ -3,15 +3,11 @@
   "version": "1.1.1",
   "description": "핀 백업해주는 pinee",
   "scripts": {
-
     "dev": "nodemon --exec ts-node index.ts",
     "preview": "tsc && node dist/index.js",
-
     "deploy": "git push heroku main",
-
     "postinstall": "tsc",
     "start": "node dist/index.js"
-
   },
   "engines": {
     "node": ">= 14.15 <15"
