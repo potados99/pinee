@@ -39,7 +39,7 @@ export default class SyncCommand extends Command {
 
     await dialog_doingSomething.delete();
 
-    const finalConfirm = await new AskUserBoolean(client, message).execute({
+    const finalConfirm = await new AskUserBoolean(client, message, true).execute({
       title: "이대로 진행할까요?",
       description: previewMessage,
       color: config.bot.themeColor
