@@ -1,7 +1,7 @@
 {
   "name": "pinee",
-  "version": "1.1.1",
-  "description": "핀 백업해주는 pinee",
+  "version": "1.1.2",
+  "description": "핀 백업하는 pinee",
   "scripts": {
     "dev": "nodemon --exec ts-node index.ts",
     "preview": "tsc && node dist/index.js",
