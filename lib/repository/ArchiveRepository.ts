@@ -37,18 +37,18 @@ class ArchiveRepository {
     console.log(`Archive ${archive.id} deleted.`);
   }
 
-  async getAllArchives(client: Client, guild: Guild) {
+  async getAllArchives(client: Client, guild: Guild, progress?: Message) {
     const archiveChannel = channelRepo.getArchiveChannel(guild);
 
-    return this.getAllArchivesFromChannel(client, archiveChannel);
+    return this.getAllArchivesFromChannel(client, archiveChannel, progress);
   }
 
-  async getAllArchivesFromChannel(client: Client, archiveChannel?: TextChannel) {
+  async getAllArchivesFromChannel(client: Client, archiveChannel?: TextChannel, progress?: Message) {
     if (!archiveChannel) {
       return [];
     }
 
-    const allMessagesInArchiveChannel = await messageRepo.getAllMessagesOfChannel(archiveChannel);
+    const allMessagesInArchiveChannel = await messageRepo.getAllMessagesFromChannel(archiveChannel, progress);
 
     const allArchives: Message[] = allMessagesInArchiveChannel.filter((message) => ArchiveRepository.isArchive(client, message));
 

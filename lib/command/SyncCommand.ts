@@ -21,7 +21,7 @@ export default class SyncCommand extends Command {
       return;
     }
 
-    const options = await SyncCommand.askOptions(client, message);
+    const options = await this.askOptions(client, message);
     if (!options) {
       return;
     }
@@ -35,10 +35,13 @@ export default class SyncCommand extends Command {
     });
 
     const preSyncResult = await syncService.preSync(options);
-    const previewMessage = await SyncCommand.getPreviewMessage(options, preSyncResult);
+    const previewMessage = await this.getPreviewMessage(options, preSyncResult);
 
     await dialog_doingSomething.delete();
 
+    /**
+     * Ask confirm or not.
+     */
     const finalConfirm = await new AskUserBoolean(client, message, true).execute({
       title: "이대로 진행할까요?",
       description: previewMessage,
@@ -51,9 +54,12 @@ export default class SyncCommand extends Command {
     await syncService.sync(preSyncResult);
   }
 
-  private static async askOptions(client: Client, message: Message) {
+  private async askOptions(client: Client, message: Message) {
     const options = new SyncOptions();
 
+    /**
+     * Ask start or not
+     */
     const keep = await new AskUserBoolean(client, message, true).execute({
       title: "메시지 아카이브",
       description: "모든 고정 메시지를 읽어서 오래된 메시지부터 아카이브합니다." +
@@ -63,13 +69,24 @@ export default class SyncCommand extends Command {
         "\n(실행 전 최종 확인 단계가 있습니다)",
       color: config.bot.themeColor
     });
-
     if (!keep) {
       return null;
     }
 
+    /**
+     * Ask include private messages or not.
+     */
+    options.includeNonPublicMessages = await new AskUserBoolean(client, message, true).execute({
+      title: "비공개 혹은 NSFW 채널의 메시지",
+      description: "비공개 혹은 NSFW 채널의 메시지도 가져올까요?",
+      color: config.bot.themeColor
+    })
+
+    /**
+     * Ask include unpinned messages or not.
+     */
     options.includeUnpinnedMessages = await new AskUserBoolean(client, message, true).execute({
-      title: "고정 해제된 메시지 포함 여부",
+      title: "고정 해제된 메시지",
       description: "고정되었다가 해제된 메시지도 가져올까요?" +
         "\n삭제된 메시지는 가져오지 않습니다." +
         "\n" +
@@ -77,18 +94,11 @@ export default class SyncCommand extends Command {
       color: config.bot.themeColor
     });
 
-    const dialog_checkingAlreadyArchived = await new TellUser(client, message).execute({
-      title: "이미 백업된 고정메시지가 있는지 확인중입니다.",
-      description: "잠시만 기다려 주세요 ㅎㅎ",
-      color: config.bot.themeColor
-    });
-
-    const archiveChannel = channelRepo.getArchiveChannel(message.guild!!);
-    const existingArchives = await archiveRepo.getAllArchivesFromChannel(client, archiveChannel);
-    await dialog_checkingAlreadyArchived.delete();
-
-    const oldArchivesExist = existingArchives.length > 0;
-    if (oldArchivesExist) {
+    /**
+     * Ask rewrite behavior if archives exist.
+     */
+    const { archiveChannel, existingArchives } = await this.checkForExistingArchives(client, message);
+    if (existingArchives.length > 0) {
       options.deleteAndRewrite = await new AskUserBoolean(client, message, true).execute({
         title: "기존 아카이브 처리",
         description: `${archiveChannel} 채널에 보관된 메시지가 ${existingArchives.length}개 있습니다. 어떻게 할까요?` +
@@ -102,7 +112,27 @@ export default class SyncCommand extends Command {
     return options;
   }
 
-  private static async getPreviewMessage(options: SyncOptions, preSyncResult: SyncParams) {
+  private async checkForExistingArchives(client: Client, message: Message) {
+    const dialog_checkingAlreadyArchived = await new TellUser(client, message).execute({
+      title: "이미 백업된 고정메시지가 있는지 확인중입니다.",
+      description: "잠시만 기다려 주세요 ㅎㅎ",
+      color: config.bot.themeColor
+    });
+    const progress = await message.reply('아카이브를 가져옵니다.');
+
+    const archiveChannel = channelRepo.getArchiveChannel(message.guild!!);
+    const existingArchives = await archiveRepo.getAllArchivesFromChannel(client, archiveChannel, progress);
+
+    await progress.delete();
+    await dialog_checkingAlreadyArchived.delete();
+
+    return {
+      archiveChannel,
+      existingArchives
+    };
+  }
+
+  private async getPreviewMessage(options: SyncOptions, preSyncResult: SyncParams) {
     const numberOfBackupTargets = preSyncResult.targetMessages.length;
     const numberOfArchivesToDelete = preSyncResult.archivesToBeDeleted.length;
     const numberOfArchivedToAdd = preSyncResult.messagesToBeArchived.length;

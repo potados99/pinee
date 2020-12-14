@@ -18,12 +18,18 @@ export default class SyncService {
   }
 
   public async preSync(options: SyncOptions) {
-    const targetMessages = options.includeUnpinnedMessages ?
-      await messageRepo.getAllOncePinnedMessagesOfGuild(this.guild) :
-      await messageRepo.getAllCurrentlyPinedMessagesOfGuild(this.guild);
+    const progress = await this.message.reply('동기화할 메시지를 가져옵니다.');
 
-    const existingArchives = await archiveRepo.getAllArchives(this.client, this.guild);
+    const targetMessages = options.includeUnpinnedMessages ?
+      await messageRepo.getAllOncePinnedMessagesOfGuild(this.guild, progress, options.includeNonPublicMessages) :
+      await messageRepo.getAllCurrentlyPinedMessagesOfGuild(this.guild, progress, options.includeNonPublicMessages);
+
+    await progress.edit('기존 아카이브를 가져옵니다.');
+
+    const existingArchives = await archiveRepo.getAllArchives(this.client, this.guild, progress);
     const archivedMessageIds = await archiveRepo.getAllArchivedMessageIds(this.client, this.guild);
+
+    await progress.delete();
 
     const archivesToBeDeleted = options.deleteAndRewrite ? existingArchives : [];
     const messagesToBeArchived = options.deleteAndRewrite ? targetMessages : targetMessages.filter((message) => !archivedMessageIds.includes(message.id));
