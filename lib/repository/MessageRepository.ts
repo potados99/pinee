@@ -1,7 +1,18 @@
-import { Channel, Client, DMChannel, Guild, Message, MessageReference, NewsChannel, TextChannel } from "discord.js";
+import {
+  Channel,
+  ChannelLogsQueryOptions,
+  Client,
+  DMChannel,
+  Guild,
+  Message,
+  MessageReference,
+  NewsChannel,
+  TextChannel
+} from "discord.js";
 import { isMessageChannel, isNonPublicChannel, isNsfwChannel } from "../utils/channel";
 import channelRepo from "./ChannelRepository";
 import { inPlaceSortDateAscending } from "../utils/message";
+import config from "../../config";
 
 /**
  * Prefix rule:
@@ -66,7 +77,58 @@ class MessageRepository {
     // Safe to force casting.
     const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
 
-    return (await messageChannel.messages.fetch()).array();
+    return await this.fetchMessages(messageChannel);
+  }
+
+  private async fetchMessages(channel: TextChannel | NewsChannel | DMChannel, limit?: number): Promise<Message[]> {
+    if (limit !== undefined && limit <= 100) {
+      return (await channel.messages.fetch({ limit: limit })).array();
+    } else {
+      return await MessageRepository.fetchMessagesUnlimited(channel);
+    }
+  }
+
+  /**
+   * Discord API limits maximum number of message to fetch to 100 per request.
+   * Therefore an unlimited fetch should be divided to bundle of requests,
+   * each of them fetch le 100.
+   *
+   * @param channel
+   * @param onEveryRequest
+   * @private
+   */
+  private static async fetchMessagesUnlimited(
+    channel: TextChannel | NewsChannel | DMChannel,
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
+    }
+  ): Promise<Message[]> {
+
+    const out: Message[] = [];
+    let last_id: string | undefined = undefined;
+    let requestsSentCount = 0;
+
+    while (true) {
+      const options: ChannelLogsQueryOptions = {
+        limit: config.api.fetchLimitPerRequest,
+        before: last_id // undefined on first request.
+      };
+
+      // Request
+      const messages = (await channel.messages.fetch(options)).array();
+      out.push(...messages);
+
+      onEveryRequest(messages.length, ++requestsSentCount);
+
+      if (messages.length < config.api.fetchLimitPerRequest) {
+        break;
+      }
+
+      last_id = messages[(messages.length - 1)].id;
+    }
+
+    console.log(`Unlimited fetch: got ${out.length} messages from channel '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}' within ${requestsSentCount} requests`);
+
+    return out;
   }
 
   async getAllCurrentlyPinedMessagesOfChannel(channel: TextChannel | NewsChannel | DMChannel) {
@@ -92,7 +154,7 @@ class MessageRepository {
   }
 
   async getAllPinSystemMessagesOfChannel(channel: TextChannel | NewsChannel | DMChannel) {
-    const allMessages = (await channel.messages.fetch()).array();
+    const allMessages = await this.getAllMessagesOfChannel(channel);
 
     return allMessages.filter((message) => message.type === "PINS_ADD");
   }

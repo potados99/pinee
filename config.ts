@@ -7,6 +7,10 @@ export default {
     themeColor: 0x836DC4
   },
 
+  api: {
+    fetchLimitPerRequest: 100 // Limited by Discord API policy,
+  },
+
   command: {
     prefix: '!!',
     list: [
