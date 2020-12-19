@@ -27,7 +27,7 @@ class FetchSessionRepository {
     this.client.hmset("last_fetched", key, value);
     this.client.hmset("fetched_total", key, accumulated);
 
-    console.log(`[Cache] Mark ${key}/${value} fetched`);
+    console.log(`[Cache] Mark message '${key}/${value}' as fetched (total ${accumulated} until here).`);
   }
 
   async getAll(guildId: string) {
