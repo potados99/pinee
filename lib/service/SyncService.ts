@@ -5,6 +5,7 @@ import SyncOptions from "./SyncOptions";
 import SyncParams from "./SyncParams";
 import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
 import syncRepo from "../repository/SyncRepository";
+import fetchSessionRepo from "../repository/FetchSessionRepository";
 
 export default class SyncService {
 
@@ -70,6 +71,14 @@ export default class SyncService {
     }
 
     await alert.edit(`${params.messagesToBeArchived.length}개의 메시지를 ${channel} 채널로 복사했습니다.`);
+
+    await this.clearFetchSession();
+  }
+
+  private async clearFetchSession() {
+    await fetchSessionRepo.clear(this.guild.id);
+
+    console.log('Fetch session cleared.');
   }
 
   private static composeProgress(body: string, current?: number, all?: number) {

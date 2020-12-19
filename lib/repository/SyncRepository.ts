@@ -1,8 +1,10 @@
 import { Channel, DMChannel, Guild, Message, MessageReference, NewsChannel, TextChannel } from "discord.js";
 import channelRepo from "./ChannelRepository";
-import { isMessageChannel, isNonPublicChannel, isNsfwChannel } from "../utils/channel";
+import { getChannelName, isMessageChannel, isNonPublicChannel, isNsfwChannel } from "../utils/channel";
 import { inPlaceSortDateAscending } from "../utils/message";
 import messageRepo from "./MessageRepository";
+import MessageRef from "../entities/MessageRef";
+import fetchSessionRepo from "./FetchSessionRepository";
 
 class SyncRepository {
 
@@ -15,23 +17,16 @@ class SyncRepository {
    * @param publicOnly
    */
   async getAllOncePinnedMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allPinSystemMessages = await this.getAllPinSystemMessagesInGuild(guild, progress, publicOnly);
-
-    // @ts-ignore
-    const allReferences: MessageReference[] = allPinSystemMessages
-      .map(message => message.reference)
-      .filter((ref) => ref);
+    const allReferences = await this.getAllPinnedMessageRefsInGuild(guild, progress, publicOnly);
 
     const uniqueReferences = this.removeDuplicates(allReferences);
 
     const originalMessages = await Promise.all(
-      uniqueReferences
-        .map((ref) => messageRepo.getMessageOfGuild(guild, ref!!.channelID, ref!!.messageID))
+      uniqueReferences.map((ref) => messageRepo.getMessageOfGuild(guild, ref.channelId, ref.messageId))
     );
 
     // @ts-ignore
-    const allOncePinedMessages: Message[] = originalMessages
-      .filter((message) => message);
+    const allOncePinedMessages: Message[] = originalMessages.filter((message) => message);
 
     const numberOfDeletedMessages = originalMessages.filter((message) => !message).length;
 
@@ -40,39 +35,63 @@ class SyncRepository {
     return inPlaceSortDateAscending(allOncePinedMessages);
   }
 
-  private async getAllPinSystemMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allPinAddMessages: Message[] = [];
+  private async getAllPinnedMessageRefsInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
+    const allPinAddMessages: MessageRef[] = [];
+
+    /**
+     * Restore procedure
+     */
+    const restored = await fetchSessionRepo.getAll(guild.id);
+    allPinAddMessages.push(...restored);
+
+    if (restored.length > 0) {
+      console.log(`Restored ${restored.length} messages from last session.`);
+    }
+
     const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild, (channel) =>
       !publicOnly || !(isNonPublicChannel(channel) || isNsfwChannel(channel))
     );
 
-    const onPinSystemMessage = (message: Message) => {
-      allPinAddMessages.push(message);
+    const onPinSystemMessage = async (message: Message) => {
+      const {guildID, channelID, messageID} = message.reference!!;
+      if (!messageID) {
+        return;
+      }
+
+      const ref = new MessageRef(guildID, channelID, messageID);
+      allPinAddMessages.push(ref);
+      await fetchSessionRepo.put(ref);
     };
 
     for (const channel of allMessageChannels) {
-      const onProgressUpdate = (found: number, total: number) => {
-        console.log(`Got ${found} pin messages of ${total} messages in '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}' channel.`);
+      const onProgressUpdate = async (found: number, total: number) => {
+        console.log(`Got ${found} pin messages of ${total} messages in '${getChannelName(channel)}' channel.`);
 
-        progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
+        await progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
       };
 
-      await this.forEachPinSystemMessageInChannel(channel, onPinSystemMessage, onProgressUpdate);
+      const lastId = await fetchSessionRepo.getLastPutMessageId(guild.id, channel.id);
+      if (lastId) {
+        console.log(`Fetch starts from last id '${lastId}' on '${getChannelName(channel)}' channel.`);
+      }
+
+      await this.forEachPinSystemMessageInChannel(channel, onPinSystemMessage, onProgressUpdate, lastId);
     }
 
-    return inPlaceSortDateAscending(allPinAddMessages);
+    return allPinAddMessages;
   }
 
   private async forEachPinSystemMessageInChannel(
     channel: TextChannel | NewsChannel | DMChannel,
     onPinSystemMessage: (message: Message) => void,
-    onProgressUpdate: (found: number, total: number) => void) {
+    onProgressUpdate: (found: number, total: number) => void,
+    startingFrom?: string) {
     let found = 0;
     let total = 0;
 
     const onMessage = async (message: Message) => {
       if (message.type === "PINS_ADD") {
-        onPinSystemMessage(message);
+        await onPinSystemMessage(message);
 
         found++; // No progress update: it's to frequent.
       }
@@ -87,17 +106,17 @@ class SyncRepository {
       return;
     }
 
-    await messageRepo.forEachMessagesInChannelUnlimited(channel, onMessage, onEveryRequest);
+    await messageRepo.forEachMessagesInChannelUnlimited(channel, onMessage, onEveryRequest, startingFrom);
   }
 
-  private removeDuplicates(references: MessageReference[]) {
-    const unique: MessageReference[] = [];
+  private removeDuplicates(references: MessageRef[]) {
+    const unique: MessageRef[] = [];
 
     for (const ref of references) {
       if (unique.find((r) => (
-        r.guildID === ref.guildID &&
-        r.channelID === ref.channelID &&
-        r.messageID === ref.messageID))) {
+        r.guildId === ref.guildId &&
+        r.channelId === ref.channelId &&
+        r.messageId === ref.messageId))) {
         continue;
       }
 

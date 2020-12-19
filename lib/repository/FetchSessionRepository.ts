@@ -12,9 +12,10 @@ class FetchSessionRepository {
 
   async put(ref: MessageRef) {
     const key = `${ref.channelId}/${ref.guildId}`;
-    const value = `${ref.messageId}`;
+    const value = ref.messageId;
 
     this.client.sadd(key, value);
+    this.client.hmset("last_put", key, value);
   }
 
   async getAll(guildId: string) {
@@ -23,7 +24,7 @@ class FetchSessionRepository {
     const keys = await this.findKeysByGuildId(guildId);
 
     for (const key of keys) {
-      const [guildId, channelId] = key.split('/');
+      const [guildId, channelId] = key.split("/");
       const messageIds = await this.getSetMembers(key);
 
       for (const messageId of messageIds) {
@@ -60,13 +61,29 @@ class FetchSessionRepository {
     });
   }
 
+  async getLastPutMessageId(guildId: string, channelId: string) {
+    return await this.getHashField("last_put", `${guildId}/${channelId}`);
+  }
+
+  private async getHashField(key: string, field: string): Promise<string | undefined> {
+    return await new Promise((resolve, reject) => {
+      this.client.hmget(key, field, (error, value) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(value.length > 0 ? value[0] : undefined);
+      });
+    });
+  }
+
   async clear(guildId: string) {
     const keys = await this.findKeysByGuildId(guildId);
 
     this.client.del(keys);
+    this.client.del("last_put");
   }
 }
 
-const syncSessionRepo = new FetchSessionRepository();
+const fetchSessionRepo = new FetchSessionRepository();
 
-export default syncSessionRepo;
+export default fetchSessionRepo;

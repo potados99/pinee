@@ -8,7 +8,7 @@ import {
   NewsChannel,
   TextChannel
 } from "discord.js";
-import { isMessageChannel, isNonPublicChannel, isNsfwChannel } from "../utils/channel";
+import { getChannelName, isMessageChannel, isNonPublicChannel, isNsfwChannel } from "../utils/channel";
 import channelRepo from "./ChannelRepository";
 import { inPlaceSortDateAscending } from "../utils/message";
 import config from "../../config";
@@ -111,7 +111,7 @@ class MessageRepository {
         onEveryRequest(numberOfFetchedMessages, accumulatedRequestCount);
     });
 
-    console.log(`Unlimited fetch: total ${out.length} messages from channel '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}'.`);
+    console.log(`Unlimited fetch: total ${out.length} messages from channel '${getChannelName(channel)}'.`);
 
     return out;
   }
@@ -120,16 +120,17 @@ class MessageRepository {
     channel: TextChannel | NewsChannel | DMChannel,
     onMessage: (message: Message) => void,
     onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
-    }
+    },
+    startingFrom?: string
   ): Promise<void> {
 
-    let last_id: string | undefined = undefined;
+    let lastId: string | undefined = startingFrom;
     let requestsSentCount: number = 0;
 
     while (true) {
       const options: ChannelLogsQueryOptions = {
         limit: config.api.fetchLimitPerRequest,
-        before: last_id // undefined on first request.
+        before: lastId // undefined on first request.
       };
 
       // Request
@@ -141,7 +142,7 @@ class MessageRepository {
         continue;
       }
 
-      console.log(`Unlimited forEach: fetched ${messages.length} messages from channel '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}' on request #${requestsSentCount}.`);
+      console.log(`Unlimited forEach: fetched ${messages.length} messages from channel '${getChannelName(channel)}' on request #${requestsSentCount}.`);
 
       for (const message of messages) {
         await onMessage(message);
@@ -153,7 +154,7 @@ class MessageRepository {
         break;
       }
 
-      last_id = messages[(messages.length - 1)].id;
+      lastId = messages[(messages.length - 1)].id;
     }
   }
 }
