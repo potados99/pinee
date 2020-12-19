@@ -1,7 +1,6 @@
 import {
   Channel,
   ChannelLogsQueryOptions,
-  Client,
   DMChannel,
   Guild,
   Message,
@@ -20,12 +19,6 @@ import config from "../../config";
  *  Returns list            ? all : .
  */
 class MessageRepository {
-  async getMessage(client: Client, guildId: string, channelId: string, messageId: string | null) {
-    const guild = await client.guilds.fetch(guildId);
-
-    return this.getMessageOfGuild(guild, channelId, messageId);
-  }
-
   async getMessageOfGuild(guild: Guild, channelId: string, messageId: string | null) {
     const channel = guild.channels.cache.get(channelId);
 
@@ -80,20 +73,6 @@ class MessageRepository {
     return await this.fetchMessages(messageChannel, progress);
   }
 
-  async forEachMessagesInChannel(channel: Channel,
-                                 onMessage: (message: Message) => void,
-                                 onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {}) {
-    if (!isMessageChannel(channel)) {
-      return [];
-    }
-
-    // @ts-ignore
-    // Safe to force casting.
-    const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
-
-    return await this.forEachMessagesInChannelUnlimited(messageChannel, onMessage, onEveryRequest);
-  }
-
   private async fetchMessages(channel: TextChannel | NewsChannel | DMChannel, progress?: Message, limit?: number): Promise<Message[]> {
     if (limit !== undefined && limit <= 100) {
       const allMessages = (await channel.messages.fetch({ limit: limit })).array();
@@ -101,7 +80,7 @@ class MessageRepository {
 
       return allMessages;
     } else {
-      return await MessageRepository.fetchMessagesUnlimited(channel, async (numberOfFetchedMessages, accumulatedRequestCount) => {
+      return await this.fetchMessagesUnlimited(channel, async (numberOfFetchedMessages, accumulatedRequestCount) => {
         await progress?.edit(`${channel} 채널에서 ${accumulatedRequestCount}번째 요청으로 ${numberOfFetchedMessages}개의 메시지를 가져왔습니다.`);
       });
     }
@@ -116,44 +95,48 @@ class MessageRepository {
    * @param onEveryRequest
    * @private
    */
-  private static async fetchMessagesUnlimited(
+  private async fetchMessagesUnlimited(
     channel: TextChannel | NewsChannel | DMChannel,
-    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {}
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
+    }
   ): Promise<Message[]> {
 
     const out: Message[] = [];
 
-    let last_id: string | undefined = undefined;
-    let requestsSentCount: number = 0;
+    await this.forEachMessagesInChannelUnlimited(channel,
+      (message) => {
+        out.push(message);
+      },
+      (numberOfFetchedMessages, accumulatedRequestCount) => {
+        onEveryRequest(numberOfFetchedMessages, accumulatedRequestCount);
+    });
 
-    while (true) {
-      const options: ChannelLogsQueryOptions = {
-        limit: config.api.fetchLimitPerRequest,
-        before: last_id, // undefined on first request
-      };
-
-      // Request
-      const messages = (await channel.messages.fetch(options)).array();
-      out.push(...messages);
-
-      await onEveryRequest(messages.length, ++requestsSentCount);
-
-      if (messages.length < config.api.fetchLimitPerRequest) {
-        break;
-      }
-
-      last_id = messages[(messages.length - 1)].id;
-    }
-
-    console.log(`Unlimited fetch: got ${out.length} messages from channel '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}' within ${requestsSentCount} request(s)`);
+    console.log(`Unlimited fetch: total ${out.length} messages from channel '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}'.`);
 
     return out;
+  }
+
+  async forEachMessagesInChannel(
+    channel: Channel,
+    onMessage: (message: Message) => void,
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
+    }) {
+    if (!isMessageChannel(channel)) {
+      return [];
+    }
+
+    // @ts-ignore
+    // Safe to force casting.
+    const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
+
+    return await this.forEachMessagesInChannelUnlimited(messageChannel, onMessage, onEveryRequest);
   }
 
   private async forEachMessagesInChannelUnlimited(
     channel: TextChannel | NewsChannel | DMChannel,
     onMessage: (message: Message) => void,
-    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {}
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
+    }
   ): Promise<void> {
 
     let last_id: string | undefined = undefined;
@@ -168,11 +151,13 @@ class MessageRepository {
       // Request
       const messages = (await channel.messages.fetch(options, false, true)).array();
 
-      await onEveryRequest(messages.length, ++requestsSentCount);
+      console.log(`Unlimited forEach: fetched ${messages.length} messages from channel '${(channel instanceof DMChannel) ? channel.recipient.username : channel.name}' on request #${requestsSentCount}.`);
 
       for (const message of messages) {
         await onMessage(message);
       }
+
+      await onEveryRequest(messages.length, ++requestsSentCount);
 
       if (messages.length < config.api.fetchLimitPerRequest) {
         break;
@@ -191,13 +176,11 @@ class MessageRepository {
 
   async getAllCurrentlyPinedMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
     const allPins: Message[] = [];
-    const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild);
+    const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild, (channel) =>
+      !publicOnly || !(isNonPublicChannel(channel) || isNsfwChannel(channel))
+    );
 
     for (const channel of allMessageChannels) {
-      if (publicOnly && (isNonPublicChannel(channel) || isNsfwChannel(channel))) {
-        continue;
-      }
-
       const pins = await this.getAllCurrentlyPinedMessagesInChannel(channel, progress);
       allPins.push(...pins);
     }
@@ -217,22 +200,23 @@ class MessageRepository {
       if (message.type === "PINS_ADD") {
         onPinSystemMessage(message);
 
-        found++
-        await onProgressUpdate(found, total);
+        found++; // No progress update: it's to frequent.
       }
     };
 
     const onEveryRequest = async (numberOfFetchedMessages: number, _: number) => {
       total += numberOfFetchedMessages;
       await onProgressUpdate(found, total);
-    }
+    };
 
     await this.forEachMessagesInChannel(channel, onMessage, onEveryRequest);
   }
 
-  async getAllPinSystemMessagesInGuild(guild: Guild, progress?: Message) {
+  async getAllPinSystemMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
     const allPinAddMessages: Message[] = [];
-    const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild);
+    const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild, (channel) =>
+      !publicOnly || !(isNonPublicChannel(channel) || isNsfwChannel(channel))
+    );
 
     const onPinSystemMessage = (message: Message) => {
       allPinAddMessages.push(message);
@@ -240,6 +224,7 @@ class MessageRepository {
 
     for (const channel of allMessageChannels) {
       const onProgressUpdate = (found: number, total: number) => {
+        console.log(`Got ${found} pin messages of ${total} messages in ${(channel instanceof DMChannel) ? channel.recipient.username : channel.name} channel.`);
         progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
       };
 
@@ -258,7 +243,7 @@ class MessageRepository {
    * @param publicOnly
    */
   async getAllOncePinnedMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allPinSystemMessages = await this.getAllPinSystemMessagesInGuild(guild, progress);
+    const allPinSystemMessages = await this.getAllPinSystemMessagesInGuild(guild, progress, publicOnly);
 
     // @ts-ignore
     const allReferences: MessageReference[] = allPinSystemMessages
