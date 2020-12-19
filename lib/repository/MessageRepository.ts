@@ -12,6 +12,7 @@ import { getChannelName, isMessageChannel, isNonPublicChannel, isNsfwChannel } f
 import channelRepo from "./ChannelRepository";
 import { inPlaceSortDateAscending } from "../utils/message";
 import config from "../../config";
+import MessageRef from "../entities/MessageRef";
 
 /**
  * Prefix rule:
@@ -119,7 +120,7 @@ class MessageRepository {
   async forEachMessagesInChannelUnlimited(
     channel: TextChannel | NewsChannel | DMChannel,
     onMessage: (message: Message) => void,
-    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number, lastFetchedMessageId?: string) => void = () => {
     },
     startingFrom?: string
   ): Promise<void> {
@@ -148,13 +149,13 @@ class MessageRepository {
         await onMessage(message);
       }
 
-      await onEveryRequest(messages.length, ++requestsSentCount);
+      lastId = messages.length > 0 ? messages[(messages.length - 1)].id : undefined;
+
+      await onEveryRequest(messages.length, ++requestsSentCount, lastId);
 
       if (messages.length < config.api.fetchLimitPerRequest) {
         break;
       }
-
-      lastId = messages[(messages.length - 1)].id;
     }
   }
 }

@@ -3,7 +3,7 @@ import SyncCommand from "./lib/command/SyncCommand";
 
 export default {
   bot: {
-    name: '',
+    name: "",
     themeColor: 0x836DC4
   },
 
@@ -12,14 +12,11 @@ export default {
   },
 
   command: {
-    prefix: '!!',
-    list: [
-      new SyncCommand('싱크'),
-    ]
+    prefix: "!!"
   },
 
   auth: {
-    token: getEnv('TOKEN') || 'YEAH'
+    token: getEnv("TOKEN") || "YEAH"
   },
 
   confirmDialog: {
@@ -27,15 +24,15 @@ export default {
   },
 
   archiveChannel: {
-    channelName: '고정메시지',
-    topicKeyword: '아카이브'
+    channelName: "고정메시지",
+    topicKeyword: "아카이브"
   },
 
   string: {
-    jumpToMessage: '메시지로 이동'
+    jumpToMessage: "메시지로 이동"
   },
 
   redis: {
-    url: getEnv('REDISTOGO_URL') || 'anything haha'
+    url: getEnv("REDISTOGO_URL") || "anything haha"
   }
-}
+};

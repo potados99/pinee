@@ -1,21 +1,32 @@
-import config from "../../config";
 import MessageRef from "../entities/MessageRef";
 import { createClient, RedisClient } from "redis";
+import config from "../../config";
+import { promisify } from "util";
 
 class FetchSessionRepository {
 
   private readonly client: RedisClient;
 
-  constructor() {
-    this.client = createClient(config.redis.url);
+  constructor(url: string) {
+    this.client = createClient({url: url});
   }
 
   async put(ref: MessageRef) {
-    const key = `${ref.channelId}/${ref.guildId}`;
+    const key = `${ref.guildId}/${ref.channelId}`;
     const value = ref.messageId;
 
     this.client.sadd(key, value);
+
+    console.log(`[Cache] Put ${key}/${value}`);
+  }
+
+  async markFetched(ref: MessageRef) {
+    const key = `${ref.guildId}/${ref.channelId}`;
+    const value = ref.messageId;
+
     this.client.hmset("last_put", key, value);
+
+    console.log(`[Cache] Mark ${key}/${value} fetched`);
   }
 
   async getAll(guildId: string) {
@@ -32,6 +43,8 @@ class FetchSessionRepository {
       }
     }
 
+    console.log(`[Cache] Get ${references.length} entries`);
+
     return references;
   }
 
@@ -40,40 +53,22 @@ class FetchSessionRepository {
   }
 
   private async getKeys(pattern: string): Promise<string[]> {
-    return await new Promise((resolve, reject) => {
-      this.client.keys(pattern, (error, keys) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(keys);
-      });
-    });
+    return await promisify(this.client.keys).bind(this.client)(pattern);
   }
 
   private async getSetMembers(key: string): Promise<string[]> {
-    return await new Promise((resolve, reject) => {
-      this.client.smembers(key, (error, keys) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(keys);
-      });
-    });
+    return await promisify(this.client.smembers).bind(this.client)(key);
   }
 
-  async getLastPutMessageId(guildId: string, channelId: string) {
+  async getLastFetchedMessageId(guildId: string, channelId: string) {
     return await this.getHashField("last_put", `${guildId}/${channelId}`);
   }
 
   private async getHashField(key: string, field: string): Promise<string | undefined> {
-    return await new Promise((resolve, reject) => {
-      this.client.hmget(key, field, (error, value) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(value.length > 0 ? value[0] : undefined);
-      });
-    });
+    // @ts-ignore
+    const result = await promisify(this.client.hmget).bind(this.client)(key, field);
+
+    return result.length > 0 ? result[0] : undefined;
   }
 
   async clear(guildId: string) {
@@ -81,9 +76,11 @@ class FetchSessionRepository {
 
     this.client.del(keys);
     this.client.del("last_put");
+
+    console.log(`[Cache] Cleared`);
   }
 }
 
-const fetchSessionRepo = new FetchSessionRepository();
+const fetchSessionRepo = new FetchSessionRepository(config.redis.url);
 
 export default fetchSessionRepo;

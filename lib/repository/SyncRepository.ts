@@ -17,13 +17,15 @@ class SyncRepository {
    * @param publicOnly
    */
   async getAllOncePinnedMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allReferences = await this.getAllPinnedMessageRefsInGuild(guild, progress, publicOnly);
+    const uniqueReferences = await this.getAllPinnedMessageRefsInGuild(guild, progress, publicOnly);
 
-    const uniqueReferences = this.removeDuplicates(allReferences);
+    const originalMessages = [];
+    for (const [index, ref] of uniqueReferences.entries()) {
+      await progress?.edit(`고정된 ${uniqueReferences.length}개 메시지의 원본을 가져오는 중입니다 (${index+1}/${uniqueReferences.length}).`);
 
-    const originalMessages = await Promise.all(
-      uniqueReferences.map((ref) => messageRepo.getMessageOfGuild(guild, ref.channelId, ref.messageId))
-    );
+      const original = await messageRepo.getMessageOfGuild(guild, ref.channelId, ref.messageId);
+      originalMessages.push(original);
+    }
 
     // @ts-ignore
     const allOncePinedMessages: Message[] = originalMessages.filter((message) => message);
@@ -36,18 +38,6 @@ class SyncRepository {
   }
 
   private async getAllPinnedMessageRefsInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allPinAddMessages: MessageRef[] = [];
-
-    /**
-     * Restore procedure
-     */
-    const restored = await fetchSessionRepo.getAll(guild.id);
-    allPinAddMessages.push(...restored);
-
-    if (restored.length > 0) {
-      console.log(`Restored ${restored.length} messages from last session.`);
-    }
-
     const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild, (channel) =>
       !publicOnly || !(isNonPublicChannel(channel) || isNsfwChannel(channel))
     );
@@ -59,18 +49,20 @@ class SyncRepository {
       }
 
       const ref = new MessageRef(guildID, channelID, messageID);
-      allPinAddMessages.push(ref);
       await fetchSessionRepo.put(ref);
     };
 
     for (const channel of allMessageChannels) {
-      const onProgressUpdate = async (found: number, total: number) => {
+      const onProgressUpdate = async (found: number, total: number, lastFetchedMessageId?: string) => {
         console.log(`Got ${found} pin messages of ${total} messages in '${getChannelName(channel)}' channel.`);
 
+        if (lastFetchedMessageId) {
+          await fetchSessionRepo.markFetched(new MessageRef(guild.id, channel.id, lastFetchedMessageId));
+        }
         await progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
       };
 
-      const lastId = await fetchSessionRepo.getLastPutMessageId(guild.id, channel.id);
+      const lastId = await fetchSessionRepo.getLastFetchedMessageId(guild.id, channel.id);
       if (lastId) {
         console.log(`Fetch starts from last id '${lastId}' on '${getChannelName(channel)}' channel.`);
       }
@@ -78,13 +70,14 @@ class SyncRepository {
       await this.forEachPinSystemMessageInChannel(channel, onPinSystemMessage, onProgressUpdate, lastId);
     }
 
-    return allPinAddMessages;
+    // Duplication automatically removed :)
+    return await fetchSessionRepo.getAll(guild.id);
   }
 
   private async forEachPinSystemMessageInChannel(
     channel: TextChannel | NewsChannel | DMChannel,
     onPinSystemMessage: (message: Message) => void,
-    onProgressUpdate: (found: number, total: number) => void,
+    onProgressUpdate: (found: number, total: number, lastFetchedMessageId?: string) => void,
     startingFrom?: string) {
     let found = 0;
     let total = 0;
@@ -97,9 +90,9 @@ class SyncRepository {
       }
     };
 
-    const onEveryRequest = async (numberOfFetchedMessages: number, _: number) => {
+    const onEveryRequest = async (numberOfFetchedMessages: number, _: number, lastFetchedMessageId?: string) => {
       total += numberOfFetchedMessages;
-      await onProgressUpdate(found, total);
+      await onProgressUpdate(found, total, lastFetchedMessageId);
     };
 
     if (!isMessageChannel(channel)) {
@@ -107,23 +100,6 @@ class SyncRepository {
     }
 
     await messageRepo.forEachMessagesInChannelUnlimited(channel, onMessage, onEveryRequest, startingFrom);
-  }
-
-  private removeDuplicates(references: MessageRef[]) {
-    const unique: MessageRef[] = [];
-
-    for (const ref of references) {
-      if (unique.find((r) => (
-        r.guildId === ref.guildId &&
-        r.channelId === ref.channelId &&
-        r.messageId === ref.messageId))) {
-        continue;
-      }
-
-      unique.push(ref);
-    }
-
-    return unique;
   }
 
   /**

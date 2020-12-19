@@ -1,6 +1,7 @@
 import { Client, Message } from "discord.js";
 import config from "../../config";
 import Responder from "./Responder";
+import commands from "../../commands";
 
 export default class CommandResponder implements Responder {
 
@@ -18,7 +19,7 @@ export default class CommandResponder implements Responder {
       return;
     }
 
-    const allSupportedCommands = config.command.list;
+    const allSupportedCommands = commands;
 
     const commandFound = allSupportedCommands.find((command) => command.getName() === commandName);
     if (!commandFound) {
