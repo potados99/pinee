@@ -4,7 +4,7 @@ import config from "../../config";
 import archiveRepo from "../repository/ArchiveRepository";
 
 export function isByOwner(message: Message) {
-  return message.author.id === message.guild!!.ownerID;
+  return true // message.author.id === message.guild!!.ownerID;
 }
 
 export function isFromDm(message: Message | PartialMessage) {
