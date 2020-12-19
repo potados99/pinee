@@ -1,4 +1,4 @@
-import { Channel, DMChannel, Guild, Message, MessageReference, NewsChannel, TextChannel } from "discord.js";
+import { DMChannel, Guild, Message, NewsChannel, TextChannel } from "discord.js";
 import channelRepo from "./ChannelRepository";
 import { getChannelName, isMessageChannel, isNonPublicChannel, isNsfwChannel } from "../utils/channel";
 import { inPlaceSortDateAscending } from "../utils/message";
