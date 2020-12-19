@@ -122,14 +122,14 @@ class MessageRepository {
     onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
     }) {
     if (!isMessageChannel(channel)) {
-      return [];
+      return;
     }
 
     // @ts-ignore
     // Safe to force casting.
     const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
 
-    return await this.forEachMessagesInChannelUnlimited(messageChannel, onMessage, onEveryRequest);
+    await this.forEachMessagesInChannelUnlimited(messageChannel, onMessage, onEveryRequest);
   }
 
   private async forEachMessagesInChannelUnlimited(
