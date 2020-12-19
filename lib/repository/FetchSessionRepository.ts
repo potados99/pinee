@@ -2,7 +2,7 @@ import config from "../../config";
 import MessageRef from "../entities/MessageRef";
 import { createClient, RedisClient } from "redis";
 
-class SyncSessionRepository {
+class FetchSessionRepository {
 
   private readonly client: RedisClient;
 
@@ -67,6 +67,6 @@ class SyncSessionRepository {
   }
 }
 
-const syncSessionRepo = new SyncSessionRepository();
+const syncSessionRepo = new FetchSessionRepository();
 
 export default syncSessionRepo;

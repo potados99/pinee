@@ -4,6 +4,7 @@ import archiveRepo from "../repository/ArchiveRepository";
 import SyncOptions from "./SyncOptions";
 import SyncParams from "./SyncParams";
 import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
+import syncRepo from "../repository/SyncRepository";
 
 export default class SyncService {
 
@@ -20,9 +21,7 @@ export default class SyncService {
   public async preSync(options: SyncOptions) {
     const progress = await this.message.reply('동기화할 메시지를 가져옵니다.');
 
-    const targetMessages = options.includeUnpinnedMessages ?
-      await messageRepo.getAllOncePinnedMessagesInGuild(this.guild, progress, options.includeNonPublicMessages) :
-      await messageRepo.getAllCurrentlyPinedMessagesInGuild(this.guild, progress, options.includeNonPublicMessages);
+    const targetMessages = await this.getTargetMessages(progress, options);
 
     await progress.edit('기존 아카이브를 가져옵니다.');
 
@@ -40,6 +39,12 @@ export default class SyncService {
     result.messagesToBeArchived = messagesToBeArchived;
 
     return result;
+  }
+
+  private async getTargetMessages(progress: Message, options: SyncOptions) {
+    return options.includeUnpinnedMessages ?
+      await syncRepo.getAllOncePinnedMessagesInGuild(this.guild, progress, options.includeNonPublicMessages) :
+      await syncRepo.getAllCurrentlyPinedMessagesInGuild(this.guild, progress, options.includeNonPublicMessages);
   }
 
   public async sync(params: SyncParams) {
