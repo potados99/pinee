@@ -33,5 +33,9 @@ export default {
 
   string: {
     jumpToMessage: '메시지로 이동'
+  },
+
+  redis: {
+    url: getEnv('REDISTOGO_URL')
   }
 }

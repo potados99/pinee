@@ -25,4 +25,4 @@ dist/
 # Misc
 .DS_Store
 
-
+.env
