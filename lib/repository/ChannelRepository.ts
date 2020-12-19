@@ -38,6 +38,13 @@ class ChannelRepository {
     // @ts-ignore
     return allChannels.filter((channel) => isMessageChannel(channel) && predicate(channel));
   }
+
+  findAllTextChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel | NewsChannel) => boolean = () => true): (TextChannel | NewsChannel)[] {
+    const allChannels = guild.channels.cache.array();
+
+    // @ts-ignore
+    return allChannels.filter((channel) => isTextChannel(channel) && predicate(channel));
+  }
 }
 
 const channelRepo = new ChannelRepository();

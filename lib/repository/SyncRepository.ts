@@ -39,7 +39,7 @@ class SyncRepository {
   }
 
   private async getAllPinnedMessageRefsInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild, (channel) =>
+    const allMessageChannels = channelRepo.findAllTextChannelsOfGuild(guild, (channel) =>
       !publicOnly || !(isNonPublicChannel(channel) || isNsfwChannel(channel))
     );
 
@@ -58,7 +58,7 @@ class SyncRepository {
         console.log(`Got ${found} pin messages of ${total} messages in '${getChannelName(channel)}' channel.`);
 
         if (lastFetchedMessageId) {
-          await fetchSessionRepo.markFetched(new MessageRef(guild.id, channel.id, lastFetchedMessageId));
+          await fetchSessionRepo.markFetched(new MessageRef(guild.id, channel.id, lastFetchedMessageId), total);
         }
         await progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
       };
@@ -76,12 +76,13 @@ class SyncRepository {
   }
 
   private async forEachPinSystemMessageInChannel(
-    channel: TextChannel | NewsChannel | DMChannel,
+    channel: TextChannel | NewsChannel,
     onPinSystemMessage: (message: Message) => void,
     onProgressUpdate: (found: number, total: number, lastFetchedMessageId?: string) => void,
     startingFrom?: string) {
-    let found = 0;
-    let total = 0;
+
+    let found = (await fetchSessionRepo.getAllInChannel(channel.guild.id, channel.id)).length;
+    let total = (await fetchSessionRepo.getLastFetchedTotal(channel.guild.id, channel.id));
 
     const onMessage = async (message: Message) => {
       if (message.type === "PINS_ADD") {
