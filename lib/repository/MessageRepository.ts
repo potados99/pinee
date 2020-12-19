@@ -80,6 +80,20 @@ class MessageRepository {
     return await this.fetchMessages(messageChannel, progress);
   }
 
+  async forEachMessagesInChannel(channel: Channel,
+                                 onMessage: (message: Message) => void,
+                                 onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {}) {
+    if (!isMessageChannel(channel)) {
+      return [];
+    }
+
+    // @ts-ignore
+    // Safe to force casting.
+    const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
+
+    return await this.forEachMessagesInChannelUnlimited(messageChannel, onMessage, onEveryRequest);
+  }
+
   private async fetchMessages(channel: TextChannel | NewsChannel | DMChannel, progress?: Message, limit?: number): Promise<Message[]> {
     if (limit !== undefined && limit <= 100) {
       const allMessages = (await channel.messages.fetch({ limit: limit })).array();
@@ -104,8 +118,7 @@ class MessageRepository {
    */
   private static async fetchMessagesUnlimited(
     channel: TextChannel | NewsChannel | DMChannel,
-    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {
-    }
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {}
   ): Promise<Message[]> {
 
     const out: Message[] = [];
@@ -116,7 +129,7 @@ class MessageRepository {
     while (true) {
       const options: ChannelLogsQueryOptions = {
         limit: config.api.fetchLimitPerRequest,
-        before: last_id // undefined on first request.
+        before: last_id, // undefined on first request
       };
 
       // Request
@@ -137,14 +150,46 @@ class MessageRepository {
     return out;
   }
 
-  async getAllCurrentlyPinedMessagesOfChannel(channel: TextChannel | NewsChannel | DMChannel, progress?: Message) {
+  private async forEachMessagesInChannelUnlimited(
+    channel: TextChannel | NewsChannel | DMChannel,
+    onMessage: (message: Message) => void,
+    onEveryRequest: (numberOfFetchedMessages: number, accumulatedRequestCount: number) => void = () => {}
+  ): Promise<void> {
+
+    let last_id: string | undefined = undefined;
+    let requestsSentCount: number = 0;
+
+    while (true) {
+      const options: ChannelLogsQueryOptions = {
+        limit: config.api.fetchLimitPerRequest,
+        before: last_id // undefined on first request.
+      };
+
+      // Request
+      const messages = (await channel.messages.fetch(options, false, true)).array();
+
+      await onEveryRequest(messages.length, ++requestsSentCount);
+
+      for (const message of messages) {
+        await onMessage(message);
+      }
+
+      if (messages.length < config.api.fetchLimitPerRequest) {
+        break;
+      }
+
+      last_id = messages[(messages.length - 1)].id;
+    }
+  }
+
+  async getAllCurrentlyPinedMessagesInChannel(channel: TextChannel | NewsChannel | DMChannel, progress?: Message) {
     const allPins = (await channel.messages.fetchPinned()).array();
     await progress?.edit(`${channel} 채널에서 1번째 요청으로 ${allPins.length}개의 메시지를 가져왔습니다.`);
-    
+
     return allPins;
   }
 
-  async getAllCurrentlyPinedMessagesOfGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
+  async getAllCurrentlyPinedMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
     const allPins: Message[] = [];
     const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild);
 
@@ -153,7 +198,7 @@ class MessageRepository {
         continue;
       }
 
-      const pins = await this.getAllCurrentlyPinedMessagesOfChannel(channel, progress);
+      const pins = await this.getAllCurrentlyPinedMessagesInChannel(channel, progress);
       allPins.push(...pins);
     }
 
@@ -162,20 +207,43 @@ class MessageRepository {
     return inPlaceSortDateAscending(allPins);
   }
 
-  async getAllPinSystemMessagesOfChannel(channel: TextChannel | NewsChannel | DMChannel, progress?: Message) {
-    const allMessages = await this.getAllMessagesFromChannel(channel, progress);
+  async forEachPinSystemMessageInChannel(channel: TextChannel | NewsChannel | DMChannel,
+                                         onPinSystemMessage: (message: Message) => void,
+                                         onProgressUpdate: (found: number, total: number) => void) {
+    let found = 0;
+    let total = 0;
 
-    return allMessages.filter((message) => message.type === "PINS_ADD");
+    const onMessage = async (message: Message) => {
+      if (message.type === "PINS_ADD") {
+        onPinSystemMessage(message);
+
+        found++
+        await onProgressUpdate(found, total);
+      }
+    };
+
+    const onEveryRequest = async (numberOfFetchedMessages: number, _: number) => {
+      total += numberOfFetchedMessages;
+      await onProgressUpdate(found, total);
+    }
+
+    await this.forEachMessagesInChannel(channel, onMessage, onEveryRequest);
   }
 
-  async getAllPinSystemMessagesOfGuild(guild: Guild, progress?: Message) {
+  async getAllPinSystemMessagesInGuild(guild: Guild, progress?: Message) {
     const allPinAddMessages: Message[] = [];
     const allMessageChannels = channelRepo.findAllMessageChannelsOfGuild(guild);
 
-    for (const channel of allMessageChannels) {
-      const pinAddMessages = await this.getAllPinSystemMessagesOfChannel(channel, progress);
+    const onPinSystemMessage = (message: Message) => {
+      allPinAddMessages.push(message);
+    };
 
-      allPinAddMessages.push(...pinAddMessages);
+    for (const channel of allMessageChannels) {
+      const onProgressUpdate = (found: number, total: number) => {
+        progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
+      };
+
+      await this.forEachPinSystemMessageInChannel(channel, onPinSystemMessage, onProgressUpdate);
     }
 
     return inPlaceSortDateAscending(allPinAddMessages);
@@ -189,8 +257,8 @@ class MessageRepository {
    * @param progress
    * @param publicOnly
    */
-  async getAllOncePinnedMessagesOfGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
-    const allPinSystemMessages = await this.getAllPinSystemMessagesOfGuild(guild, progress);
+  async getAllOncePinnedMessagesInGuild(guild: Guild, progress?: Message, publicOnly: boolean = false) {
+    const allPinSystemMessages = await this.getAllPinSystemMessagesInGuild(guild, progress);
 
     // @ts-ignore
     const allReferences: MessageReference[] = allPinSystemMessages

@@ -21,8 +21,8 @@ export default class SyncService {
     const progress = await this.message.reply('동기화할 메시지를 가져옵니다.');
 
     const targetMessages = options.includeUnpinnedMessages ?
-      await messageRepo.getAllOncePinnedMessagesOfGuild(this.guild, progress, options.includeNonPublicMessages) :
-      await messageRepo.getAllCurrentlyPinedMessagesOfGuild(this.guild, progress, options.includeNonPublicMessages);
+      await messageRepo.getAllOncePinnedMessagesInGuild(this.guild, progress, options.includeNonPublicMessages) :
+      await messageRepo.getAllCurrentlyPinedMessagesInGuild(this.guild, progress, options.includeNonPublicMessages);
 
     await progress.edit('기존 아카이브를 가져옵니다.');
 
