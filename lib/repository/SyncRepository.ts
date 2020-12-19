@@ -12,6 +12,7 @@ class SyncRepository {
    * Get all messages pinned for at least once.
    * This includes unpinned messages.
    * Does not include deleted messages.
+   *
    * @param guild
    * @param progress
    * @param publicOnly
