@@ -1,6 +1,7 @@
 import { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
 import TellUser from "./TellUser";
 import AskOptions from "./AskOptions";
+import { isOwner } from "../utils/user";
 
 export default class AskUserWithOptions {
 
@@ -35,7 +36,7 @@ export default class AskUserWithOptions {
     const confirmReactionFilter = (reaction: MessageReaction, user: User) => {
       const oneOfAvailableOptions = this.options.choices!!.includes(reaction.emoji.name);
       const notByThisBot = user.id !== this.client.user?.id;
-      const byPermittedUser = !this.options.onlyForOwner || (user.id === dialogSent.guild!!.ownerID);
+      const byPermittedUser = !this.options.onlyForOwner || (isOwner(user, dialogSent.guild!!));
 
       return oneOfAvailableOptions && notByThisBot && byPermittedUser;
     };

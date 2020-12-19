@@ -23,7 +23,7 @@ export default {
   },
 
   confirmDialog: {
-    timeout: 300 * 1000
+    timeout: 600 * 1000
   },
 
   archiveChannel: {

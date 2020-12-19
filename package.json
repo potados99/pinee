@@ -7,7 +7,7 @@
     "preview": "tsc && node dist/index.js",
     "deploy": "git push heroku main",
     "postinstall": "tsc",
-    "start": "node --max_old_space_size=920 dist/index.js"
+    "start": "node --max_old_space_size=920 --trace-warnings dist/index.js"
   },
   "engines": {
     "node": ">= 14.15 <15"

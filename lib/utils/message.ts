@@ -2,9 +2,10 @@ import Discord, { Client, DMChannel, Guild, Message, PartialMessage } from "disc
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
 import archiveRepo from "../repository/ArchiveRepository";
+import { isOwner } from "./user";
 
 export function isByOwner(message: Message) {
-  return true // message.author.id === message.guild!!.ownerID;
+  return isOwner(message.author, message.guild!!);
 }
 
 export function isFromDm(message: Message | PartialMessage) {
