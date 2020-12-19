@@ -36,6 +36,6 @@ export default {
   },
 
   redis: {
-    url: getEnv('REDISTOGO_URL')
+    url: getEnv('REDISTOGO_URL') || 'anything haha'
   }
 }
