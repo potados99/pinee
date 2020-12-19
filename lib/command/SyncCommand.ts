@@ -30,7 +30,7 @@ export default class SyncCommand extends Command {
 
     const dialog_doingSomething = await new TellUser(client, message).execute({
       title: "준비중입니다",
-      description: "조금 오래 걸릴 수 있습니다. 잠시만 기다려 주세요 ㅎㅎ",
+      description: "⏳ 조금 오래 걸릴 수 있습니다. 잠시만 기다려 주세요 ㅎㅎ",
       color: config.bot.themeColor
     });
 
@@ -43,7 +43,7 @@ export default class SyncCommand extends Command {
      * Ask confirm or not.
      */
     const finalConfirm = await new AskUserBoolean(client, message, true).execute({
-      title: "이대로 진행할까요?",
+      title: "이대로 진행할까요? 😎",
       description: previewMessage,
       color: config.bot.themeColor
     });
@@ -138,8 +138,8 @@ export default class SyncCommand extends Command {
     const numberOfArchivedToAdd = preSyncResult.messagesToBeArchived.length;
 
     return "**백업 옵션**" +
-      `\n- 고정 해제된 메시지 포함: ${options.includeUnpinnedMessages ? '웅' : '아니'}` +
-      `\n- 백업 덮어쓰기: ${options.deleteAndRewrite ? '웅' : '아니'}` +
+      `\n- 고정 해제된 메시지 포함: ${options.includeUnpinnedMessages ? '넹' : '아뇽'}` +
+      `\n- 백업 덮어쓰기: ${options.deleteAndRewrite ? '넹' : '아뇽'}` +
       "\n" +
       "\n**변경 예정**" +
       `\n- 백업 대상 메시지: ${numberOfBackupTargets}개` +
