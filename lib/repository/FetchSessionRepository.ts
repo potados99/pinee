@@ -24,7 +24,7 @@ class FetchSessionRepository {
     const key = `${ref.guildId}/${ref.channelId}`;
     const value = ref.messageId;
 
-    this.client.hmset("last_put", key, value);
+    this.client.hmset("last_fetched", key, value);
     this.client.hmset("fetched_total", key, accumulated);
 
     console.log(`[Cache] Mark ${key}/${value} fetched`);
@@ -66,12 +66,12 @@ class FetchSessionRepository {
   }
 
   async getLastFetchedMessageId(guildId: string, channelId: string) {
-    return await this.getHashField("last_put", `${guildId}/${channelId}`);
+    return await this.getHashField("last_fetched", `${guildId}/${channelId}`);
   }
 
   async getLastFetchedTotal(guildId: string, channelId: string) {
     const value = await this.getHashField("fetched_total", `${guildId}/${channelId}`);
-    return (value !== undefined && Number.isInteger(value)) ? Number.parseInt(value) : 0;
+    return value ? Number.parseInt(value) : 0;
   }
 
   private async getHashField(key: string, field: string): Promise<string | undefined> {
@@ -85,7 +85,7 @@ class FetchSessionRepository {
     const keys = await this.findKeysByGuildId(guildId);
 
     this.client.del(keys);
-    this.client.del("last_put");
+    this.client.del("last_fetched");
 
     console.log(`[Cache] Cleared`);
   }
