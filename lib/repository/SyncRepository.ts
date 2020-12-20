@@ -22,7 +22,7 @@ class SyncRepository {
 
     const originalMessages = [];
     for (const [index, ref] of uniqueReferences.entries()) {
-      await progress?.edit(`고정된 ${uniqueReferences.length}개 메시지의 원본을 가져오는 중입니다 (${index+1}/${uniqueReferences.length}).`);
+      await progress?.edit(`고정된 ${uniqueReferences.length}개 메시지의 원본을 가져오는 중입니다 (${index + 1}/${uniqueReferences.length}).`);
 
       const original = await messageRepo.getMessageOfGuild(guild, ref.channelId, ref.messageId);
       originalMessages.push(original);
@@ -44,13 +44,13 @@ class SyncRepository {
     );
 
     const onPinSystemMessage = async (message: Message) => {
-      const {guildID, channelID, messageID} = message.reference!!;
+      const { guildID, channelID, messageID } = message.reference!!;
       if (!messageID) {
         return;
       }
 
       const ref = new MessageRef(guildID, channelID, messageID);
-      await fetchSessionRepo.put(ref);
+      await fetchSessionRepo.putMessageRef(ref);
     };
 
     for (const channel of allMessageChannels) {
@@ -58,21 +58,25 @@ class SyncRepository {
         console.log(`Got ${found} pin messages of ${total} messages in '${getChannelName(channel)}' channel.`);
 
         if (lastFetchedMessageId) {
+          /**
+           * Mark that messages until lastFetchedMessageId are fetched and PROCESSED.
+           * Meaning that a new message pinned in a recent 100 group will be ignored.
+           */
           await fetchSessionRepo.markFetched(new MessageRef(guild.id, channel.id, lastFetchedMessageId), total);
         }
         await progress?.edit(`${channel} 채널에서 ${total}개의 메시지 중 ${found}개의 고정 메시지를 발견하였습니다.`);
       };
 
-      const lastId = await fetchSessionRepo.getLastFetchedMessageId(guild.id, channel.id);
+      const lastId = await fetchSessionRepo.getLastFetchedIdInChannel(guild.id, channel.id);
       if (lastId) {
-        console.log(`Fetch starts from last id '${lastId}' on '${getChannelName(channel)}' channel.`);
+        console.log(`Fetch starts from last id '${lastId}' on '${getChannelName(channel)}' channel: already fetched and processed ${await fetchSessionRepo.getFetchedTotalInChannel(guild.id, channel.id)}).`);
       }
 
       await this.forEachPinSystemMessageInChannel(channel, onPinSystemMessage, onProgressUpdate, lastId);
     }
 
     // Duplication automatically removed :)
-    return await fetchSessionRepo.getAll(guild.id);
+    return await fetchSessionRepo.getAllMessageRefsInGuild(guild.id);
   }
 
   private async forEachPinSystemMessageInChannel(
@@ -81,8 +85,8 @@ class SyncRepository {
     onProgressUpdate: (found: number, total: number, lastFetchedMessageId?: string) => void,
     startingFrom?: string) {
 
-    let found = (await fetchSessionRepo.getAllInChannel(channel.guild.id, channel.id)).length;
-    let total = (await fetchSessionRepo.getLastFetchedTotal(channel.guild.id, channel.id));
+    let found = (await fetchSessionRepo.getAllMessageRefsInChannel(channel.guild.id, channel.id)).length;
+    let total = (await fetchSessionRepo.getFetchedTotalInChannel(channel.guild.id, channel.id));
 
     const onMessage = async (message: Message) => {
       if (message.type === "PINS_ADD") {
@@ -101,6 +105,10 @@ class SyncRepository {
       return;
     }
 
+    /**
+     * onEveryRequest will be called after onMessage called for every fetched message.
+     * Meaning that at the moment onEveryRequest is called, message processing for that fetch is already finished.
+     */
     await messageRepo.forEachMessagesInChannelUnlimited(channel, onMessage, onEveryRequest, startingFrom);
   }
 

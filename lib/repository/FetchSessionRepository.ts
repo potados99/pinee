@@ -11,7 +11,7 @@ class FetchSessionRepository {
     this.client = createClient({url: url});
   }
 
-  async put(ref: MessageRef) {
+  async putMessageRef(ref: MessageRef) {
     const key = `${ref.guildId}/${ref.channelId}`;
     const value = ref.messageId;
 
@@ -30,7 +30,7 @@ class FetchSessionRepository {
     console.log(`[Cache] Mark message '${key}/${value}' as fetched (total ${accumulated} until here).`);
   }
 
-  async getAll(guildId: string) {
+  async getAllMessageRefsInGuild(guildId: string) {
     const references: MessageRef[] = [];
 
     const keys = await this.findKeysByGuildId(guildId);
@@ -49,7 +49,7 @@ class FetchSessionRepository {
     return references;
   }
 
-  async getAllInChannel(guildId: string, channelId: string) {
+  async getAllMessageRefsInChannel(guildId: string, channelId: string) {
     return await this.getSetMembers(`${guildId}/${channelId}`);
   }
 
@@ -65,12 +65,13 @@ class FetchSessionRepository {
     return await promisify(this.client.smembers).bind(this.client)(key);
   }
 
-  async getLastFetchedMessageId(guildId: string, channelId: string) {
+  async getLastFetchedIdInChannel(guildId: string, channelId: string) {
     return await this.getHashField("last_fetched", `${guildId}/${channelId}`);
   }
 
-  async getLastFetchedTotal(guildId: string, channelId: string) {
+  async getFetchedTotalInChannel(guildId: string, channelId: string) {
     const value = await this.getHashField("fetched_total", `${guildId}/${channelId}`);
+
     return value ? Number.parseInt(value) : 0;
   }
 
@@ -82,10 +83,11 @@ class FetchSessionRepository {
   }
 
   async clear(guildId: string) {
-    const keys = await this.findKeysByGuildId(guildId);
+    const guildChannelKeys = await this.findKeysByGuildId(guildId);
 
-    this.client.del(keys);
+    this.client.del(guildChannelKeys);
     this.client.del("last_fetched");
+    this.client.del("fetched_total");
 
     console.log(`[Cache] Cleared`);
   }
