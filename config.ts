@@ -34,5 +34,9 @@ export default {
 
   redis: {
     url: getEnv("REDISTOGO_URL") || "anything haha"
+  },
+
+  pinByReaction: {
+    threshold: 3
   }
 };
