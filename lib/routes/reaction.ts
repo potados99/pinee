@@ -1,5 +1,6 @@
 import { Client, MessageReaction } from "discord.js";
 import config from "../../config";
+import PinByReactionResponder from "../responder/PinByReactionResponder";
 
 export async function onReactionAdd(client: Client, reaction: MessageReaction) {
   if (reaction.emoji.name !== '📌') {
@@ -13,5 +14,5 @@ export async function onReactionAdd(client: Client, reaction: MessageReaction) {
 
   console.log(`📌 Pin by reaction: '${reaction.message.id}' will be pinned!`);
 
-  await reaction.message.pin();
+  await new PinByReactionResponder(client, reaction).handle();
 }
