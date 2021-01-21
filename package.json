@@ -26,14 +26,9 @@
     "nodemon": "^2.0.6",
     "ts-node": "^9.1.1"
   },
-  "author": "Jakub Synowiec <github@jakubsynowiec.info>",
-  "license": "Apache-2.0",
   "dependencies": {
     "discord.js": "^12.5.1",
     "redis": "^3.0.2",
     "tslib": "~2.0.3"
-  },
-  "volta": {
-    "node": "14.15.0"
   }
 }
