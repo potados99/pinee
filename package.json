@@ -4,9 +4,10 @@
   "description": "핀 백업하는 pinee",
   "scripts": {
     "dev": "nodemon --exec ts-node index.ts",
+    "build": "tsc",
     "preview": "tsc && node dist/index.js",
     "deploy": "git push heroku main",
-    "postinstall": "tsc",
+    "postinstall": "npm run build",
     "start": "node --trace-warnings dist/index.js"
   },
   "engines": {
