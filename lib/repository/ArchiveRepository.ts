@@ -1,29 +1,28 @@
 import channelRepo from "./ChannelRepository";
-import { Client, Guild, Message, MessageEmbed, TextChannel } from "discord.js";
+import { Guild, Message, MessageEmbed, TextChannel } from "discord.js";
 import { composeArchiveEmbed, isByThisBot } from "../utils/message";
 import messageRepo from "./MessageRepository";
 
 class ArchiveRepository {
 
-  async archiveMessage(message: Message) {
+  async createArchive(message: Message) {
     const archiveChannel = channelRepo.getArchiveChannel(message.guild!!);
-
-    if (!archiveChannel) {
+    if (archiveChannel == null) {
+      console.log(`But no archive channel exists!`);
       return null;
     }
 
-    return await this.archiveMessageToChannel(message, archiveChannel);
+    return await this.createArchiveToChannel(message, archiveChannel);
   }
 
-  async archiveMessageToChannel(message: Message, channel: TextChannel) {
-    const archive = await this.getArchiveByMessageId(message.client, message.guild!!, message.id);
-    if (archive) {
-      console.log(`But message '${message.id}' is already archived!`);
-      return;
-    }
+  async createArchiveToChannel(message: Message, channel: TextChannel) {
+    // const archive = await this.getArchive(message);
+    // if (archive != null) {
+    //   console.log(`But message '${message.id}' is already archived!`);
+    //   return;
+    // }
 
     const embed = composeArchiveEmbed(message.guild!!, message);
-
     const newlyArchived = await channel.send(embed);
 
     console.log(`New archive '${newlyArchived.id}' of message '${message.id}' created in '${channel.name}' channel.`);
@@ -31,39 +30,33 @@ class ArchiveRepository {
     return newlyArchived;
   }
 
-  async deleteArchive(archive: Message) {
-    await archive.delete();
+  async getArchive(message: Message) {
+    const allArchives = await this.getAllArchives(message.guild!!);
 
-    console.log(`Archive ${archive.id} deleted.`);
+    return allArchives
+      .find((arc: Message) => ArchiveRepository.extractChannelAndMessageId(ArchiveRepository.extractEmbed(arc)?.author?.url || null)?.messageId === message.id);
   }
 
-  async getAllArchives(client: Client, guild: Guild, progress?: Message) {
+  async getAllArchives(guild: Guild, progress?: Message) {
     const archiveChannel = channelRepo.getArchiveChannel(guild);
 
-    return this.getAllArchivesFromChannel(client, archiveChannel, progress);
+    return this.getAllArchivesFromChannel(archiveChannel, progress);
   }
 
-  async getAllArchivesFromChannel(client: Client, archiveChannel?: TextChannel, progress?: Message) {
+  async getAllArchivesFromChannel(archiveChannel?: TextChannel, progress?: Message) {
     if (!archiveChannel) {
       return [];
     }
 
     const allMessagesInArchiveChannel = await messageRepo.getAllMessagesFromChannel(archiveChannel, progress);
 
-    const allArchives: Message[] = allMessagesInArchiveChannel.filter((message) => ArchiveRepository.isArchive(client, message));
+    const allArchives: Message[] = allMessagesInArchiveChannel.filter((message) => ArchiveRepository.isArchive(message));
 
     return allArchives;
   }
 
-  async getArchiveByMessageId(client: Client, guild: Guild, messageId: string) {
-    const allArchives = await this.getAllArchives(client, guild);
-
-    return allArchives
-      .find((arc: Message) => ArchiveRepository.extractChannelAndMessageId(ArchiveRepository.extractEmbed(arc)?.author?.url || null)?.messageId === messageId);
-  }
-
-  async getAllArchivedMessageIds(client: Client, guild: Guild) {
-    const allArchives = await this.getAllArchives(client, guild);
+  async getAllArchivedMessageIds(guild: Guild) {
+    const allArchives = await this.getAllArchives(guild);
 
     return allArchives
       .map((arc) => ArchiveRepository.extractEmbed(arc))
@@ -72,19 +65,18 @@ class ArchiveRepository {
       .map((emb: MessageEmbed) => ArchiveRepository.extractChannelAndMessageId(emb.author.url)?.messageId);
   }
 
-  async updateArchive(client: Client, message: Message) {
-    const archive = await this.getArchiveByMessageId(client, message.guild!!, message.id);
-
-    if (!archive) {
-      console.log(`Message '${message.id}' is not archived, so that cannot be updated!`);
-      return;
-    }
-
+  async updateArchive(archive: Message, message: Message) {
     await archive.edit(composeArchiveEmbed(message.guild!!, message));
   }
 
-  private static isArchive(client: Client, message: Message) {
-    if (!isByThisBot(client, message)) {
+  async deleteArchive(archive: Message) {
+    await archive.delete();
+
+    console.log(`Archive ${archive.id} deleted.`);
+  }
+
+  private static isArchive(message: Message) {
+    if (!isByThisBot(message.client, message)) {
       return false;
     }
 

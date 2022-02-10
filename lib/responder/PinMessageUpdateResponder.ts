@@ -1,15 +1,12 @@
-import { Client, Message } from "discord.js";
-import archiveRepo from "../repository/ArchiveRepository";
+import { Message } from "discord.js";
 import Responder from "./Responder";
+import SyncArchive from "../interactor/SyncArchive";
 
 export default class PinMessageUpdateResponder implements Responder {
-  constructor(
-    private readonly client: Client,
-    private readonly message: Message
-  ) {
+  constructor(private readonly message: Message) {
   }
 
   public async handle() {
-    await archiveRepo.updateArchive(this.client, this.message);
+    await new SyncArchive(this.message).execute();
   }
 }

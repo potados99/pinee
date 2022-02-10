@@ -18,7 +18,7 @@ export async function onMessage(client: Client, message: Message) {
   if (isCommand(message)) {
     console.log(`New command event: '${message.content}'`);
 
-    await new CommandResponder(client, message).handle();
+    await new CommandResponder(message).handle();
     return;
   }
 }

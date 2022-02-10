@@ -1,11 +1,10 @@
-import { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
+import { Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
 import TellUser from "./TellUser";
 import { isOwner } from "../utils/user";
 import AskOptions from "./AskOptions";
 
 export default class AskUserWithOptions {
   constructor(
-    private readonly client: Client,
     private readonly message: Message,
     private readonly options: AskOptions
   ) {
@@ -18,7 +17,7 @@ export default class AskUserWithOptions {
   }
 
   private async ask(messageData: MessageEmbedOptions) {
-    const confirmDialogSent = await new TellUser(this.client, this.message).execute(messageData);
+    const confirmDialogSent = await new TellUser(this.message).execute(messageData);
 
     // Attach reaction, letting user select one of the options.
     for (const option of this.options.choices!!) {
@@ -31,7 +30,7 @@ export default class AskUserWithOptions {
   private async waitForReply(dialogSent: Message) {
     const confirmReactionFilter = (reaction: MessageReaction, user: User) => {
       const oneOfAvailableOptions = this.options.choices!!.includes(reaction.emoji.name);
-      const notByThisBot = user.id !== this.client.user?.id;
+      const notByThisBot = user.id !== this.message.client.user?.id;
       const byPermittedUser = !this.options.onlyForOwner || (isOwner(user, dialogSent.guild!!));
 
       return oneOfAvailableOptions && notByThisBot && byPermittedUser;

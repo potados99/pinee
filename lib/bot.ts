@@ -1,9 +1,10 @@
-import Discord, { Message } from "discord.js";
+import Discord from "discord.js";
 import { onReady } from "./routes/ready";
 import { onMessage } from "./routes/message";
 import { onMessageUpdate } from "./routes/update";
 import config from "../config";
 import { onReactionAdd } from "./routes/reaction";
+import { messagesFetched, reactionsFetched } from "./utils/message";
 
 export default async function startBot() {
   const client = new Discord.Client({ partials: ["MESSAGE", "REACTION"] }); // Listen for changes(update, reaction) on previous messages.
@@ -16,15 +17,14 @@ export default async function startBot() {
     await onMessage(client, message);
   });
 
-  client.on("messageUpdate", async (before, after) => {
-    if (before.partial) await before.fetch();
-    if (after.partial) await after.fetch();
+  client.on("messageUpdate", async (rawBefore, rawAfter) => {
+    const [before, after] = await messagesFetched(rawBefore, rawAfter);
 
-    await onMessageUpdate(client, before as Message, after as Message);
+    await onMessageUpdate(client, before, after);
   });
 
-  client.on("messageReactionAdd", async (reaction) => {
-    if (reaction.partial) await reaction.fetch();
+  client.on("messageReactionAdd", async (rawReaction) => {
+    const [reaction] = await reactionsFetched(rawReaction);
 
     await onReactionAdd(client, reaction);
   });

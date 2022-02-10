@@ -1,4 +1,4 @@
-import { Client, Message } from "discord.js";
+import { Message } from "discord.js";
 
 export default class Command {
 
@@ -12,7 +12,7 @@ export default class Command {
     return this.name;
   }
 
-  async execute(client: Client, message: Message) {
+  async execute(message: Message) {
     throw new Error("Not implemented!");
   }
 }

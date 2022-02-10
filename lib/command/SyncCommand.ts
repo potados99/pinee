@@ -1,5 +1,5 @@
 import Command from "./Command";
-import { Client, Message } from "discord.js";
+import { Message } from "discord.js";
 import AskUserBoolean from "../interactor/AskUserBoolean";
 import config from "../../config";
 import { isByOwner } from "../utils/message";
@@ -11,24 +11,23 @@ import SyncParams from "../service/SyncParams";
 import channelRepo from "../repository/ChannelRepository";
 
 export default class SyncCommand extends Command {
-
   constructor(command: string) {
     super(command);
   }
 
-  public async execute(client: Client, message: Message): Promise<void> {
+  public async execute(message: Message): Promise<void> {
     if (!isByOwner(message)) {
       return;
     }
 
-    const options = await this.askOptions(client, message);
+    const options = await this.askOptions(message);
     if (!options) {
       return;
     }
 
-    const syncService = new SyncService(client, message);
+    const syncService = new SyncService(message);
 
-    const dialog_doingSomething = await new TellUser(client, message).execute({
+    const dialog_doingSomething = await new TellUser(message).execute({
       title: "준비중입니다",
       description: "⏳ 조금 오래 걸릴 수 있습니다. 잠시만 기다려 주세요 ㅎㅎ",
       color: config.bot.themeColor
@@ -42,7 +41,7 @@ export default class SyncCommand extends Command {
     /**
      * Ask confirm or not.
      */
-    const finalConfirm = await new AskUserBoolean(client, message, true).execute({
+    const finalConfirm = await new AskUserBoolean(message, true).execute({
       title: "이대로 진행할까요? 😎",
       description: previewMessage,
       color: config.bot.themeColor
@@ -54,13 +53,13 @@ export default class SyncCommand extends Command {
     await syncService.sync(preSyncResult);
   }
 
-  private async askOptions(client: Client, message: Message) {
+  private async askOptions(message: Message) {
     const options = new SyncOptions();
 
     /**
      * Ask start or not
      */
-    const keep = await new AskUserBoolean(client, message, true).execute({
+    const keep = await new AskUserBoolean(message, true).execute({
       title: "메시지 아카이브",
       description: "모든 고정 메시지를 읽어서 오래된 메시지부터 아카이브합니다." +
         "\n원본 메시지에는 영향이 없습니다." +
@@ -76,16 +75,16 @@ export default class SyncCommand extends Command {
     /**
      * Ask include private messages or not.
      */
-    options.includeNonPublicMessages = await new AskUserBoolean(client, message, true).execute({
+    options.includeNonPublicMessages = await new AskUserBoolean(message, true).execute({
       title: "비공개 혹은 NSFW 채널의 메시지",
       description: "비공개 혹은 NSFW 채널의 메시지도 가져올까요?",
       color: config.bot.themeColor
-    })
+    });
 
     /**
      * Ask include unpinned messages or not.
      */
-    options.includeUnpinnedMessages = await new AskUserBoolean(client, message, true).execute({
+    options.includeUnpinnedMessages = await new AskUserBoolean(message, true).execute({
       title: "고정 해제된 메시지",
       description: "고정되었다가 해제된 메시지도 가져올까요?" +
         "\n삭제된 메시지는 가져오지 않습니다." +
@@ -97,9 +96,9 @@ export default class SyncCommand extends Command {
     /**
      * Ask rewrite behavior if archives exist.
      */
-    const { archiveChannel, existingArchives } = await this.checkForExistingArchives(client, message);
+    const { archiveChannel, existingArchives } = await this.checkForExistingArchives(message);
     if (existingArchives.length > 0) {
-      options.deleteAndRewrite = await new AskUserBoolean(client, message, true).execute({
+      options.deleteAndRewrite = await new AskUserBoolean(message, true).execute({
         title: "기존 아카이브 처리",
         description: `${archiveChannel} 채널에 보관된 메시지가 ${existingArchives.length}개 있습니다. 어떻게 할까요?` +
           "\n" +
@@ -112,16 +111,16 @@ export default class SyncCommand extends Command {
     return options;
   }
 
-  private async checkForExistingArchives(client: Client, message: Message) {
-    const dialog_checkingAlreadyArchived = await new TellUser(client, message).execute({
+  private async checkForExistingArchives(message: Message) {
+    const dialog_checkingAlreadyArchived = await new TellUser(message).execute({
       title: "이미 백업된 고정메시지가 있는지 확인중입니다.",
       description: "잠시만 기다려 주세요 ㅎㅎ",
       color: config.bot.themeColor
     });
-    const progress = await message.reply('아카이브를 가져옵니다.');
+    const progress = await message.reply("아카이브를 가져옵니다.");
 
     const archiveChannel = channelRepo.getArchiveChannel(message.guild!!);
-    const existingArchives = await archiveRepo.getAllArchivesFromChannel(client, archiveChannel, progress);
+    const existingArchives = await archiveRepo.getAllArchivesFromChannel(archiveChannel, progress);
 
     await progress.delete();
     await dialog_checkingAlreadyArchived.delete();
@@ -138,8 +137,8 @@ export default class SyncCommand extends Command {
     const numberOfArchivedToAdd = preSyncResult.messagesToBeArchived.length;
 
     return "**백업 옵션**" +
-      `\n- 고정 해제된 메시지 포함: ${options.includeUnpinnedMessages ? '넹' : '아뇽'}` +
-      `\n- 백업 덮어쓰기: ${options.deleteAndRewrite ? '넹' : '아뇽'}` +
+      `\n- 고정 해제된 메시지 포함: ${options.includeUnpinnedMessages ? "넹" : "아뇽"}` +
+      `\n- 백업 덮어쓰기: ${options.deleteAndRewrite ? "넹" : "아뇽"}` +
       "\n" +
       "\n**변경 예정**" +
       `\n- 백업 대상 메시지: ${numberOfBackupTargets}개` +

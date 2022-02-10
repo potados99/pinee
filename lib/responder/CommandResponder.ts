@@ -1,13 +1,10 @@
-import { Client, Message } from "discord.js";
+import { Message } from "discord.js";
 import config from "../../config";
 import Responder from "./Responder";
 import commands from "../../commands";
 
 export default class CommandResponder implements Responder {
-  constructor(
-    private readonly client: Client,
-    private readonly message: Message
-  ) {
+  constructor(private readonly message: Message) {
   }
 
   public async handle() {
@@ -23,6 +20,6 @@ export default class CommandResponder implements Responder {
       return;
     }
 
-    await commandFound.execute(this.client, this.message);
+    await commandFound.execute(this.message);
   }
 }
