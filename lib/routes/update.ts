@@ -11,7 +11,6 @@ export async function onMessageUpdate(client: Client, before: Message, after: Me
     return;
   }
 
-
   if (isPinned(after) || await isArchived(client, after)) {
     await new PinMessageUpdateResponder(after).handle();
   }
