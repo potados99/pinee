@@ -2,13 +2,10 @@ import Responder from "./Responder";
 import { Client, MessageReaction } from "discord.js";
 
 export default class PinByReactionResponder implements Responder {
-
-  private readonly client: Client;
-  private readonly reaction: MessageReaction;
-
-  constructor(client: Client, reaction: MessageReaction) {
-    this.client = client;
-    this.reaction = reaction;
+  constructor(
+    private readonly client: Client,
+    private readonly reaction: MessageReaction
+  ) {
   }
 
   public async handle() {

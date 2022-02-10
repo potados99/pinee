@@ -1,4 +1,4 @@
-import { Client, Guild, Message } from "discord.js";
+import { Client, Message } from "discord.js";
 import config from "../../config";
 import AskUserBoolean from "../interactor/AskUserBoolean";
 import GetOrCreateArchiveChannel from "../interactor/GetOrCreateArchiveChannel";
@@ -7,20 +7,16 @@ import archiveRepo from "../repository/ArchiveRepository";
 import Responder from "./Responder";
 
 export default class NewPinEventResponder implements Responder {
-
-  private readonly client: Client;
-  private readonly message: Message;
-  private readonly guild: Guild;
-
-  constructor(client: Client, message: Message) {
-    this.client = client;
-    this.message = message;
-    this.guild = message.guild!!;
+  constructor(
+    private readonly client: Client,
+    private readonly message: Message
+  ) {
   }
 
   public async handle() {
     if (isFromNonPublicChannel(this.message) || isFromNsfwChannel(this.message)) {
-      if (!await this.askIfUserWantsToPublishThis()) {
+      const ok = await this.askIfUserWantsToPublishThis();
+      if (!ok) {
         return;
       }
     }

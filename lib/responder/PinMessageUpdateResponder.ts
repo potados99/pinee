@@ -3,13 +3,10 @@ import archiveRepo from "../repository/ArchiveRepository";
 import Responder from "./Responder";
 
 export default class PinMessageUpdateResponder implements Responder {
-
-  private readonly client: Client;
-  private readonly message: Message;
-
-  constructor(client: Client, message: Message) {
-    this.client = client;
-    this.message = message;
+  constructor(
+    private readonly client: Client,
+    private readonly message: Message
+  ) {
   }
 
   public async handle() {
