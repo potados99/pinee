@@ -1,18 +1,14 @@
 import config from "../../config";
-import { Client, Guild, Message } from "discord.js";
+import { Client, Message } from "discord.js";
 import AskUserBoolean from "./AskUserBoolean";
 import channelRepo from "../repository/ChannelRepository";
 
 export default class GetOrCreateArchiveChannel {
-
-  private readonly client: Client;
-  private readonly message: Message;
-  private readonly guild: Guild;
-
-  constructor(client: Client, message: Message) {
-    this.client = client;
-    this.message = message;
-    this.guild = message.guild!!; /* Cannot be null */
+  constructor(
+    private readonly client: Client,
+    private readonly message: Message,
+    private readonly guild = message.guild!!
+  ) {
   }
 
   public async execute() {

@@ -1,13 +1,10 @@
 import Discord, { Client, Message, MessageEmbedOptions } from "discord.js";
 
 export default class TellUser {
-
-  private client: Client;
-  private message: Message;
-
-  constructor(client: Client, message: Message) {
-    this.client = client;
-    this.message = message;
+  constructor(
+    private readonly client: Client,
+    private readonly message: Message
+  ) {
   }
 
   public async execute(messageData: MessageEmbedOptions) {

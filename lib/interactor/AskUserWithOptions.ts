@@ -1,18 +1,14 @@
 import { Client, Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
 import TellUser from "./TellUser";
-import AskOptions from "./AskOptions";
 import { isOwner } from "../utils/user";
+import AskOptions from "./AskOptions";
 
 export default class AskUserWithOptions {
-
-  private readonly client: Client;
-  private readonly message: Message;
-  private readonly options: AskOptions;
-
-  constructor(client: Client, message: Message, options: AskOptions) {
-    this.client = client;
-    this.message = message;
-    this.options = options;
+  constructor(
+    private readonly client: Client,
+    private readonly message: Message,
+    private readonly options: AskOptions
+  ) {
   }
 
   public async execute(messageData: MessageEmbedOptions) {
