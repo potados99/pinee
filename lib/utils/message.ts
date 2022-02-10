@@ -1,8 +1,12 @@
-import Discord, { Client, DMChannel, Guild, Message, PartialMessage } from "discord.js";
+import Discord, { Client, DMChannel, Guild, Message, MessageReaction, PartialMessage } from "discord.js";
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
 import archiveRepo from "../repository/ArchiveRepository";
 import { isOwner } from "./user";
+
+export function isSame(one: Message, another: Message) {
+  return JSON.stringify(one.toJSON()) === JSON.stringify(another.toJSON());
+}
 
 export function isByOwner(message: Message) {
   return isOwner(message.author, message.guild!!);
@@ -26,6 +30,10 @@ export function isNotCommand(message: Message) {
 
 export function contentChanged(before: Message, after: Message) {
   return before.content !== after.content;
+}
+
+export function contentNotChanged(before: Message, after: Message) {
+  return !contentChanged(before, after);
 }
 
 export function isPinned(message: Message) {
@@ -100,7 +108,15 @@ export function inPlaceSortDateAscending(messages: Message[]) {
 }
 
 export async function isArchived(client: Client, message: Message) {
-  const allArchivedIds = await archiveRepo.getAllArchivedMessageIds(client, message.guild!!);
+  const allArchivedIds = await archiveRepo.getAllArchivedMessageIds(message.guild!!);
 
   return allArchivedIds.includes(message.id);
+}
+
+export async function messagesFetched(...messages: (Message | PartialMessage)[]): Promise<Message[]> {
+  return Promise.all(messages.map(m => m.partial ? m.fetch() : m));
+}
+
+export async function reactionsFetched(...reactions: (MessageReaction)[]): Promise<MessageReaction[]> {
+  return Promise.all(reactions.map(r => r.partial ? r.fetch() : r));
 }
