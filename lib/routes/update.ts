@@ -1,6 +1,7 @@
 import { Client, Message } from "discord.js";
 import PinMessageUpdateResponder from "../responder/PinMessageUpdateResponder";
-import { isArchived, isByThisBot, isFromDm, isPinned } from "../utils/message";
+import { isByThisBot, isFromDm, isPinned } from "../utils/message";
+import { isArchived } from "../utils/archive";
 
 export async function onMessageUpdate(client: Client, before: Message, after: Message) {
   if (isByThisBot(client, after)) {
@@ -11,7 +12,7 @@ export async function onMessageUpdate(client: Client, before: Message, after: Me
     return;
   }
 
-  if (isPinned(after) || await isArchived(client, after)) {
+  if (isPinned(after) || await isArchived(after)) {
     await new PinMessageUpdateResponder(after).handle();
   }
 }

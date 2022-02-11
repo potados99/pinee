@@ -1,5 +1,4 @@
 import getEnv from "./lib/utils/env";
-import SyncCommand from "./lib/command/SyncCommand";
 
 export default {
   bot: {

@@ -1,7 +1,6 @@
-import Discord, { Client, DMChannel, Guild, Message, MessageReaction, PartialMessage } from "discord.js";
+import { Client, DMChannel, Message, MessageEmbed, MessageReaction, PartialMessage } from "discord.js";
 import { isNonPublicChannel } from "./channel";
 import config from "../../config";
-import archiveRepo from "../repository/ArchiveRepository";
 import { isOwner } from "./user";
 
 export function isSame(one: Message, another: Message) {
@@ -65,52 +64,8 @@ export function isFromNsfwChannel(message: Message) {
   return channel.nsfw;
 }
 
-export function composeArchiveEmbed(guild: Guild, message: Message) {
-  const name = message.author.username;
-  const avatarUrl = message.author.avatarURL();
-  const pinContent = message.content;
-  const contentDate = message.createdAt.getTime();
-
-  const server = guild.id;
-  const channelId = message.channel.id;
-  const messageId = message.id;
-  const firstImageUrl = message.attachments.first()?.url;
-
-  // User can explicitly click this link.
-  const messageUrl = `https://discordapp.com/channels/${server}/${channelId}/${messageId}`;
-  const jumpToMessageLink = `\n\n[${config.string.jumpToMessage}](${messageUrl})`;
-
-  let channelName; // No channel name on DMChannel.
-  if (!(message.channel instanceof DMChannel)) {
-    channelName = message.channel.name;
-  }
-
-  return new Discord.MessageEmbed({
-    description: pinContent + jumpToMessageLink,
-    color: config.bot.themeColor,
-    timestamp: contentDate,
-    author: {
-      name: name,
-      iconURL: avatarUrl || undefined,
-      url: messageUrl
-    },
-    image: {
-      url: firstImageUrl
-    },
-    footer: {
-      text: channelName
-    }
-  });
-}
-
 export function inPlaceSortDateAscending(messages: Message[]) {
   return messages.sort((left: Message, right: Message) => left.createdTimestamp - right.createdTimestamp);
-}
-
-export async function isArchived(client: Client, message: Message) {
-  const allArchivedIds = await archiveRepo.getAllArchivedMessageIds(message.guild!!);
-
-  return allArchivedIds.includes(message.id);
 }
 
 export async function messagesFetched(...messages: (Message | PartialMessage)[]): Promise<Message[]> {
@@ -119,4 +74,13 @@ export async function messagesFetched(...messages: (Message | PartialMessage)[])
 
 export async function reactionsFetched(...reactions: (MessageReaction)[]): Promise<MessageReaction[]> {
   return Promise.all(reactions.map(r => r.partial ? r.fetch() : r));
+}
+
+export function extractEmbed(message: Message): MessageEmbed | undefined {
+  const noEmbeds = message.embeds.length === 0;
+  if (noEmbeds) {
+    return undefined;
+  }
+
+  return message.embeds[0];
 }

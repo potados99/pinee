@@ -1,7 +1,7 @@
 import config from "../../config";
 import { Message } from "discord.js";
 import AskUserBoolean from "./AskUserBoolean";
-import channelRepo from "../repository/ChannelRepository";
+import ChannelRepository from "../repository/ChannelRepository";
 
 export default class GetOrCreateArchiveChannel {
   constructor(private readonly message: Message) {
@@ -11,13 +11,13 @@ export default class GetOrCreateArchiveChannel {
     return await this.findOrCreateArchiveChannel();
   }
 
-  async findOrCreateArchiveChannel() {
-    const channelFound = channelRepo.getArchiveChannel(this.message.guild!!);
+  private async findOrCreateArchiveChannel() {
+    const channelFound = ChannelRepository.getArchiveChannel(this.message.guild!!);
 
     return channelFound || await this.createArchiveChannel();
   }
 
-  async createArchiveChannel() {
+  private async createArchiveChannel() {
     let newChannelName = config.archiveChannel.channelName;
 
     const create = await new AskUserBoolean(this.message).execute(

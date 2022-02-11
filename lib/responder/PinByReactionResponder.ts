@@ -38,7 +38,7 @@ export default class PinByReactionResponder implements Responder {
 
     try {
       await oldest.unpin();
-    } catch (e) {
+    } catch (e: any) {
       console.error(`Unexpected error: ${e.message}`);
     }
   }

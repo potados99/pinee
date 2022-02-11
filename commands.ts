@@ -1,5 +1,4 @@
-import SyncCommand from "./lib/command/SyncCommand";
+import Command from "./lib/command/Command";
 
 export default [
-  new SyncCommand("싱크")
-];
+] as Command[];
