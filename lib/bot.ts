@@ -14,7 +14,7 @@ export default async function startBot() {
   });
 
   client.on("message", async (message) => {
-    await onMessage(client, message);
+    await onMessage(message);
   });
 
   client.on("messageUpdate", async (rawBefore, rawAfter) => {
@@ -26,7 +26,7 @@ export default async function startBot() {
   client.on("messageReactionAdd", async (rawReaction) => {
     const [reaction] = await reactionsFetched(rawReaction);
 
-    await onReactionAdd(client, reaction);
+    await onReactionAdd(reaction);
   });
 
   await client.login(config.auth.token);

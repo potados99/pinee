@@ -1,14 +1,14 @@
 import Responder from "./Responder";
-import { Client, Message } from "discord.js";
+import { Message } from "discord.js";
+import DmService from "../service/DmService";
 
 export default class DmResponder implements Responder {
-  constructor(
-    private readonly client: Client,
-    private readonly message: Message
-  ) {
+  constructor(private readonly message: Message) {
   }
 
   async handle() {
-    await this.message.reply(`안녕하세요! pinee입니다!`);
+    const answer = await new DmService(this.message).getAnswer();
+
+    await this.message.reply(answer);
   }
 }

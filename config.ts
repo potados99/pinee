@@ -6,7 +6,7 @@ export default {
     themeColor: 0x836DC4
   },
 
-  api: {
+  discord: {
     fetchLimitPerRequest: 100 // Limited by Discord API policy,
   },
 
@@ -33,6 +33,10 @@ export default {
 
   redis: {
     url: getEnv("REDISTOGO_URL") || "anything haha"
+  },
+
+  simsimi: {
+    apiKey: getEnv("SIMSIMI_API_KEY") || "adadad"
   },
 
   pinByReaction: {
