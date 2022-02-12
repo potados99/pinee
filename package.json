@@ -1,6 +1,6 @@
 {
   "name": "pinee",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "핀 백업하는 pinee",
   "scripts": {
     "dev": "nodemon --exec ts-node index.ts",
