@@ -1,8 +1,9 @@
 import { Message } from "discord.js";
 import fetch from "isomorphic-fetch";
 import config from "../../config";
+import { withProbability } from "../utils/probability";
 
-export default class DmService {
+export default class SimSimService {
   constructor(private readonly message: Message) {
   }
 
@@ -14,8 +15,9 @@ export default class DmService {
         'x-api-key': config.simsimi.apiKey,
       },
       body: JSON.stringify({
-        "utext": this.message.content,
-        "lang": "ko",
+        "utext": this.message.cleanContent,
+        "lang": this.selectLanguage(),
+        "atext_bad_prob_max": 0.0
       }),
     });
 
@@ -29,5 +31,15 @@ export default class DmService {
     }
 
     return atext as string;
+  }
+
+  private selectLanguage(): string {
+    let lang = 'ko';
+
+    withProbability(0.1, () => {
+      lang = 'en';
+    });
+
+    return lang;
   }
 }

@@ -19,6 +19,18 @@ export function isByThisBot(client: Client, message: Message) {
   return message.author.id === client.user?.id;
 }
 
+export function isMentioningThisBot(client: Client, message: Message) {
+  const mentionedUsers = message.mentions.users.array();
+
+  for (const user of mentionedUsers) {
+    if (user.id === client.user?.id) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function isCommand(message: Message) {
   return message.content.startsWith(config.command.prefix);
 }
