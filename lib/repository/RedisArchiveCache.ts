@@ -2,6 +2,7 @@ import { createClient } from "redis";
 import config from "../../config";
 import MessageRef from "../entities/MessageRef";
 import { promisify } from "util";
+import { TextChannel } from "discord.js";
 
 class RedisArchiveCache {
   private readonly client = createClient({ url: this.url });
@@ -16,38 +17,30 @@ class RedisArchiveCache {
   }
 
   async getArchiveRef(original: MessageRef): Promise<MessageRef | undefined> {
-    const key = `${original.guildId}/${original.channelId}/${original.messageId}`;
-
-    const value = await this.getAsync(key);
-
+    const value = await this.getAsync(original.toString());
     if (value == null) {
       return undefined;
     }
 
-    const [guildId, channelId, messageId] = value.split("/");
-
-    return new MessageRef(guildId, channelId, messageId);
+    return MessageRef.fromString(value);
   }
 
   async putArchiveRef(original: MessageRef, archive: MessageRef): Promise<void> {
-    const key = `${original.guildId}/${original.channelId}/${original.messageId}`;
-    const value = `${archive.guildId}/${archive.channelId}/${archive.messageId}`;
-
-    await this.setAsync(key, value);
+    await this.setAsync(original.toString(), archive.toString());
   }
 
-  async getLastFetchedArchiveId(): Promise<string | undefined> {
-    const key = `last-fetched`;
+  async getLastFetchedArchiveId(archiveChannel: TextChannel): Promise<string | undefined> {
+    const key = `${archiveChannel.guild.id}/${archiveChannel.id}/last-fetched`;
 
     return await this.getAsync(key) ?? undefined;
   }
 
-  async putLastFetchedArchiveId(id?: string): Promise<void> {
+  async putLastFetchedArchiveId(archiveChannel: TextChannel, id?: string): Promise<void> {
     if (id == null) {
       return;
     }
 
-    const key = `last-fetched`;
+    const key = `${archiveChannel.guild.id}/${archiveChannel.id}/last-fetched`;
 
     await this.setAsync(key, id);
   }

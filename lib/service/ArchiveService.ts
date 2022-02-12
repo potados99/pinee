@@ -42,7 +42,7 @@ export default class ArchiveService {
   private async fillCache(): Promise<void> {
     console.log("Fetching 시작!");
 
-    const lastId = await RedisArchiveCache.getLastFetchedArchiveId();
+    const lastId = await RedisArchiveCache.getLastFetchedArchiveId(this.archiveChannel);
 
     const allArchives = await MessageRepository.getAllMessagesFromChannel(this.archiveChannel, lastId);
 
@@ -57,7 +57,7 @@ export default class ArchiveService {
       await RedisArchiveCache.putArchiveRef(originalRef, archiveRef);
     }
 
-    await RedisArchiveCache.putLastFetchedArchiveId(allArchives[0]?.id/*가장 최근*/);
+    await RedisArchiveCache.putLastFetchedArchiveId(this.archiveChannel, allArchives[0]?.id/*가장 최근*/);
 
     console.log("캐시 채움!");
   }
@@ -75,7 +75,7 @@ export default class ArchiveService {
       MessageRef.fromMessage(newlyArchived)
     );
 
-    await RedisArchiveCache.putLastFetchedArchiveId(newlyArchived.id);
+    await RedisArchiveCache.putLastFetchedArchiveId(this.archiveChannel, newlyArchived.id);
 
     return newlyArchived;
   }
