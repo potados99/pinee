@@ -1,6 +1,6 @@
-import { Message } from "discord.js";
 import fetch from "isomorphic-fetch";
 import config from "../../config";
+import { Message } from "discord.js";
 import { withProbability } from "../utils/probability";
 
 export default class SimSimService {
@@ -8,6 +8,14 @@ export default class SimSimService {
   }
 
   async getAnswer(): Promise<string> {
+    if (this.message.content.includes('따라해봐:')) {
+      const wordsToRepeat = this.message.content.split('따라해봐:').pop()?.trim();
+
+      if (wordsToRepeat != null) {
+        return wordsToRepeat;
+      }
+    }
+
     const response = await fetch('https://wsapi.simsimi.com/190410/talk', {
       method: 'POST',
       headers: {
