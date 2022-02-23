@@ -11,8 +11,10 @@ export default class SimSimService {
     if (this.message.content.includes('따라해봐:')) {
       const wordsToRepeat = this.message.content.split('따라해봐:').pop()?.trim();
 
-      if (wordsToRepeat != null) {
+      if (wordsToRepeat != null && wordsToRepeat.length > 0) {
         return wordsToRepeat;
+      } else {
+        return `잘 이해하지 못했어요. 무엇을 따라해야 하는거죠...?`;
       }
     }
 
