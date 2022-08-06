@@ -17,9 +17,13 @@ export default class ArchiveService {
   async findArchive(message: Message) {
     log(`아카이브 검색! ${stringifyMessage(message)}에 대한 아카이브를 찾습니다.`);
 
-    await this.fillCache();
+    await this.updateCache();
 
     return await this.findArchiveFromCache(message);
+  }
+
+  private async updateCache(): Promise<void> {
+    await new ArchiveCacheFiller(this.archiveChannel).fillCache();
   }
 
   private async findArchiveFromCache(original: Message): Promise<Message | undefined> {
@@ -34,10 +38,6 @@ export default class ArchiveService {
         archiveRef.messageId
       );
     }
-  }
-
-  private async fillCache(): Promise<void> {
-    await new ArchiveCacheFiller(this.archiveChannel).fillCache();
   }
 
   /**

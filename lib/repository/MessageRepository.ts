@@ -1,58 +1,49 @@
-import {Channel, DMChannel, Guild, Message, NewsChannel, TextChannel} from 'discord.js';
+import {error} from '../utils/logging';
+import MessageFetcher from './MessageFetcher';
 import {isMessageChannel} from '../utils/channel';
-import MessageFetcher from '../utils/MessageFetcher';
+import {Channel, DMChannel, Message, NewsChannel, TextChannel} from 'discord.js';
 
 /**
- * Prefix rule:
- *  Search with predicate   ? find : get
- *  Returns list            ? all : .
+ * 메시지 정보를 제공하는 저장소입니다.
  */
 class MessageRepository {
-  async getMessageFromGuildAndChannel(guild: Guild, channelId: string, messageId?: string) {
-    const channel = guild.channels.cache.get(channelId);
-
-    if (!channel) {
-      return undefined;
-    }
-
-    return await this.getMessageFromChannel(channel, messageId);
-  }
-
-  async getMessageFromChannel(channel: Channel, messageId?: string) {
+  /**
+   * 채널 내의 특정 메시지를 가져옵니다.
+   * @param channel 메시지를 포함하는 채널
+   * @param messageId 특정 메시지의 식별자
+   */
+  async getMessageFromChannel(channel: Channel, messageId: string) {
     if (!isMessageChannel(channel)) {
       return undefined;
     }
 
     // @ts-ignore
-    // Safe to force casting.
     const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
 
-    return MessageRepository.getMessageSafe(messageChannel, messageId);
+    return MessageRepository.getMessageSafely(messageChannel, messageId);
+  }
+
+  private static async getMessageSafely(
+    channel: TextChannel | NewsChannel | DMChannel,
+    messageId: string
+  ): Promise<Message | undefined> {
+    try {
+      // 찾고자 하는 메시지가 삭제된 메시지인 경우, API 호출이 예외를 던집니다.
+      return await channel.messages.fetch(messageId);
+    } catch (e: any) {
+      error(
+        `Discord API 호출 중 예외가 발생하였기 때문에 메시지 '${messageId}'를 가져올 수 없습니다: ${e.message}`
+      );
+      return undefined;
+    }
   }
 
   /**
-   * If the message is deleted, API call will throw.
-   * This is a wrapper that returns undefined when the call throws.
-   * @param channel
-   * @param messageId
-   * @private
+   * 채널 내의 모든 메시지를 가져옵니다.
+   * @param channel 메시지를 가져올 채널
+   * @param until 가장 최신 메시지부터 이 메시지까지 가져옵니다.
+   * @param progress 진행 상황을 알려줄 다이얼로그 메시지
    */
-  private static async getMessageSafe(
-    channel: TextChannel | NewsChannel | DMChannel,
-    messageId?: string
-  ) {
-    if (!messageId) {
-      return undefined;
-    }
-
-    try {
-      return await channel.messages.fetch(messageId);
-    } catch (e: any) {
-      console.error(`메시지 '${messageId}'를 가져올 수 없습니다: ${e.message}`);
-      return undefined;
-    }
-  }
-
   async getAllMessagesFromChannel(channel: Channel, until?: string, progress?: Message) {
     if (!isMessageChannel(channel)) {
       return [];
