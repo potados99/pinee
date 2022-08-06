@@ -1,9 +1,8 @@
 import config from '../config';
 import {onReady} from './routes/ready';
 import {onReactionAdd} from './routes/reaction';
-import {onMessageCreate} from './routes/message';
-import {onMessageUpdate} from './routes/update';
 import onInteractionCreate from './routes/interaction';
+import {onMessageCreate, onMessageUpdate} from './routes/message';
 import {messagesFetched, reactionsFetched} from './utils/message';
 import Discord, {GatewayIntentBits, Partials} from 'discord.js';
 
