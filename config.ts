@@ -1,4 +1,4 @@
-import getEnv from "./lib/utils/env";
+import getEnv from './lib/utils/env';
 
 export default {
   /**
@@ -7,19 +7,19 @@ export default {
   behaviors: {
     archiving: {
       channel: {
-        newArchiveChannelName: "고정메시지",
-        topicKeyword: "아카이브"
-      }
+        newArchiveChannelName: '고정메시지',
+        topicKeyword: '아카이브',
+      },
     },
     interaction: {
       confirm: {
-        timeoutMillis: 600 * 1000
-      }
+        timeoutMillis: 600 * 1000,
+      },
     },
     pinByReaction: {
-      availablePins: ["📌", "📍", "🖇"],
-      pinCountThreshold: 3
-    }
+      availablePins: ['📌', '📍', '🖇'],
+      pinCountThreshold: 3,
+    },
   },
 
   /**
@@ -28,22 +28,22 @@ export default {
   services: {
     discord: {
       bot: {
-        name: "Pinee",
-        themeColor: 0x836DC4,
+        name: 'Pinee',
+        themeColor: 0x836dc4,
         auth: {
-          token: getEnv("TOKEN") || "YEAH"
-        }
+          token: getEnv('TOKEN') || 'YEAH',
+        },
       },
       api: {
-        fetchLimitPerRequest: 100 // 디스코드 정책
-      }
+        fetchLimitPerRequest: 100, // 디스코드 정책
+      },
     },
     redis: {
-      url: getEnv("REDISTOGO_URL") || "anything haha"
+      url: getEnv('REDISTOGO_URL') || 'anything haha',
     },
     simsimi: {
-      apiKey: getEnv("SIMSIMI_API_KEY") || "adadad"
-    }
+      apiKey: getEnv('SIMSIMI_API_KEY') || 'adadad',
+    },
   },
 
   /**
@@ -51,7 +51,7 @@ export default {
    */
   resources: {
     string: {
-      jumpToMessage: "메시지로 이동"
-    }
-  }
+      jumpToMessage: '메시지로 이동',
+    },
+  },
 };

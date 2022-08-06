@@ -1,4 +1,3 @@
-import Command from "./lib/command/Command";
+import Command from './lib/command/Command';
 
-export default [
-] as Command[];
+export default [] as Command[];
