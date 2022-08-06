@@ -1,9 +1,10 @@
 import Discord, { DMChannel, Guild, Message } from "discord.js";
-import { extractEmbed } from "./message";
+import { extractEmbed, stringifyMessage } from "./message";
 import config from "../../config";
 import MessageRef from "../entities/MessageRef";
 import ArchiveService from "../service/ArchiveService";
 import ChannelRepository from "../repository/ChannelRepository";
+import { warn } from "./logging";
 
 export function composeArchiveEmbed(guild: Guild, message: Message) {
   const name = message.author.username;
@@ -78,9 +79,15 @@ export function extractOriginalMessageRef(archive: Message): MessageRef | undefi
   return new MessageRef(guildId, channelId, messageId);
 }
 
+/**
+ * 이 메시지가 이미 아카이브되었는지 여부를 가져옵니다.
+ * 이 메시지를 가리키는(url) 아카이브가 고정 메시지 채널에 있다면 해당 메시지는 아카이브된 것입니다.
+ * @param message 아카이브 여부를 확인할 메시지
+ */
 export async function isArchived(message: Message): Promise<Boolean> {
   const archiveChannel = await ChannelRepository.getArchiveChannel(message.guild!!);
   if (archiveChannel == null) {
+    warn(`메시지의 아카이브 여부를 확인하려는데, 아카이브 채널이 없습니다. 따라서 ${stringifyMessage(message)}는 아카이브되지 않은 것으로 간주합니다.`);
     return false;
   }
 
