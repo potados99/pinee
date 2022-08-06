@@ -31,14 +31,6 @@ export function isMentioningThisBot(client: Client, message: Message) {
   return false;
 }
 
-export function isCommand(message: Message) {
-  return message.content.startsWith(config.command.prefix);
-}
-
-export function isNotCommand(message: Message) {
-  return !isCommand(message);
-}
-
 export function contentChanged(before: Message, after: Message) {
   return before.content !== after.content;
 }
@@ -80,10 +72,18 @@ export function inPlaceSortDateAscending(messages: Message[]) {
   return messages.sort((left: Message, right: Message) => left.createdTimestamp - right.createdTimestamp);
 }
 
+/**
+ * 인자로 들어온 모든 메시지들에 대해 fetch가 완료된 버전을 반환합니다.
+ * @param messages fetch가 필요할 수도 있는 메시지들
+ */
 export async function messagesFetched(...messages: (Message | PartialMessage)[]): Promise<Message[]> {
   return Promise.all(messages.map(m => m.partial ? m.fetch() : m));
 }
 
+/**
+ * 인자로 들어온 모든 리액션들에 대해 fetch가 완료된 버전을 반환합니다.
+ * @param reactions fetch가 필요할 수도 있는 리액션들
+ */
 export async function reactionsFetched(...reactions: (MessageReaction)[]): Promise<MessageReaction[]> {
   return Promise.all(reactions.map(r => r.partial ? r.fetch() : r));
 }

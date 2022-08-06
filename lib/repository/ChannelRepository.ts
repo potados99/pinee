@@ -29,7 +29,7 @@ class ChannelRepository {
   }
 
   getArchiveChannel(guild: Guild): TextChannel | undefined {
-    return this.getTextChannelOfGuildWithTopic(guild, config.archiveChannel.topicKeyword);
+    return this.getTextChannelOfGuildWithTopic(guild, config.behaviors.archiving.channel.topicKeyword);
   }
 
   findAllMessageChannelsOfGuild(guild: Guild, predicate: (channel: TextChannel | NewsChannel | DMChannel) => boolean = () => true): (TextChannel | NewsChannel | DMChannel)[] {

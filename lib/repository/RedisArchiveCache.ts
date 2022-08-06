@@ -47,4 +47,4 @@ class RedisArchiveCache {
   }
 }
 
-export default new RedisArchiveCache(config.redis.url);
+export default new RedisArchiveCache(config.services.redis.url);

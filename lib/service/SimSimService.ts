@@ -22,7 +22,7 @@ export default class SimSimService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': config.simsimi.apiKey,
+        'x-api-key': config.services.simsimi.apiKey,
       },
       body: JSON.stringify({
         "utext": this.message.cleanContent,

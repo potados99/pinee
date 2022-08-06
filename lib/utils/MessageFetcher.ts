@@ -55,7 +55,7 @@ export default class MessageFetcher {
 
     while (true) {
       const options: ChannelLogsQueryOptions = {
-        limit: config.discord.fetchLimitPerRequest,
+        limit: config.services.discord.api.fetchLimitPerRequest,
         before: lastId
       };
 
@@ -88,7 +88,7 @@ export default class MessageFetcher {
         break;
       }
 
-      if (messages.length < config.discord.fetchLimitPerRequest) {
+      if (messages.length < config.services.discord.api.fetchLimitPerRequest) {
         break;
       }
     }

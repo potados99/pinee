@@ -7,7 +7,7 @@ export default class AskUserBoolean {
   private readonly options: AskOptions = {
     choices: ["✅", "❌"],
     onlyForOwner: this.onlyForOwner,
-    replyTimeout: config.confirmDialog.timeout
+    replyTimeout: config.behaviors.interaction.confirm.timeoutMillis
   };
 
   constructor(

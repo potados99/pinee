@@ -18,13 +18,13 @@ export default class GetOrCreateArchiveChannel {
   }
 
   private async createArchiveChannel() {
-    let newChannelName = config.archiveChannel.channelName;
+    let newChannelName = config.behaviors.archiving.channel.newArchiveChannelName;
 
     const create = await new AskUserBoolean(this.message).execute(
       {
         title: "아카이브 채널을 만들까요?",
-        description: `토픽에 '${config.archiveChannel.topicKeyword}'이(가) 들어간 채널이 아직 없습니다. '${newChannelName}'(이)라는 이름으로 새 채널을 생성할까요?`,
-        color: config.bot.themeColor
+        description: `토픽에 '${config.behaviors.archiving.channel.topicKeyword}'이(가) 들어간 채널이 아직 없습니다. '${newChannelName}'(이)라는 이름으로 새 채널을 생성할까요?`,
+        color: config.services.discord.bot.themeColor
       }
     );
 
@@ -32,9 +32,9 @@ export default class GetOrCreateArchiveChannel {
       return null;
     }
 
-    return await this.message.guild!!.channels.create(config.archiveChannel.channelName, {
+    return await this.message.guild!!.channels.create(config.behaviors.archiving.channel.newArchiveChannelName, {
       type: "text",
-      topic: config.archiveChannel.topicKeyword
+      topic: config.behaviors.archiving.channel.topicKeyword
     });
   }
 }

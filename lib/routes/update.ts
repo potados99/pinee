@@ -1,8 +1,14 @@
+import { isArchived } from "../utils/archive";
 import { Client, Message } from "discord.js";
 import PinMessageUpdateResponder from "../responder/PinMessageUpdateResponder";
 import { isByThisBot, isFromDm, isPinned } from "../utils/message";
-import { isArchived } from "../utils/archive";
 
+/**
+ * 기존 메시지가 변경되었을 때에 실행할 동작을 정의합니다.
+ * @param client 클라이언트
+ * @param before 변경 전 메시지
+ * @param after 변경 후 메시지
+ */
 export async function onMessageUpdate(client: Client, before: Message, after: Message) {
   if (isByThisBot(client, after)) {
     return;

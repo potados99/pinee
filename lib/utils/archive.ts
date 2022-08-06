@@ -18,7 +18,7 @@ export function composeArchiveEmbed(guild: Guild, message: Message) {
 
   // User can explicitly click this link.
   const messageUrl = `https://discordapp.com/channels/${guildId}/${channelId}/${messageId}`;
-  const jumpToMessageLink = `\n\n[${config.string.jumpToMessage}](${messageUrl})`;
+  const jumpToMessageLink = `\n\n[${config.resources.string.jumpToMessage}](${messageUrl})`;
 
   let channelName; // No channel name on DMChannel.
   if (!(message.channel instanceof DMChannel)) {
@@ -27,7 +27,7 @@ export function composeArchiveEmbed(guild: Guild, message: Message) {
 
   return new Discord.MessageEmbed({
     description: pinContent + jumpToMessageLink,
-    color: config.bot.themeColor,
+    color: config.services.discord.bot.themeColor,
     timestamp: contentDate,
     author: {
       name: name,
