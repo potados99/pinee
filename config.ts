@@ -28,10 +28,11 @@ export default {
   services: {
     discord: {
       bot: {
+        name: "Pinee",
+        themeColor: 0x836DC4,
         auth: {
           token: getEnv("TOKEN") || "YEAH"
-        },
-        themeColor: 0x836DC4
+        }
       },
       api: {
         fetchLimitPerRequest: 100 // 디스코드 정책
