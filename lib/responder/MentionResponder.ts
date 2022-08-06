@@ -1,5 +1,5 @@
-import Responder from './Responder';
 import {Message} from 'discord.js';
+import Responder from './Responder';
 import SimSimService from '../service/SimSimService';
 
 /**

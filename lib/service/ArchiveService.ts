@@ -4,8 +4,8 @@ import RedisArchiveCache from '../repository/RedisArchiveCache';
 import MessageRepository from '../repository/MessageRepository';
 import ArchiveCacheFiller from './ArchiveCacheFiller';
 import {stringifyMessage} from '../utils/message';
-import {Message, TextChannel} from 'discord.js';
 import {composeArchiveEmbed} from '../utils/archive';
+import {Message, TextChannel} from 'discord.js';
 
 export default class ArchiveService {
   constructor(private readonly archiveChannel: TextChannel) {}

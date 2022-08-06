@@ -2,9 +2,8 @@ import {info} from '../utils/logging';
 import DmResponder from '../responder/DmResponder';
 import MentionResponder from '../responder/MentionResponder';
 import {Client, Message} from 'discord.js';
-import {isByThisBot, isFromDm, isMentioningThisBot, isPinned, stringifyMessage} from '../utils/message';
-import {isArchived} from '../utils/archive';
 import PinMessageUpdateResponder from '../responder/PinMessageUpdateResponder';
+import {isByThisBot, isFromDm, isMentioningThisBot, isPinned, stringifyMessage} from '../utils/message';
 
 /**
  * 새 메시지가 도착했을 때에 실행할 동작을 정의합니다.

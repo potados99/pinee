@@ -1,6 +1,6 @@
 import config from '../../config';
-import {debug, error, info} from '../utils/logging';
 import {getChannelName} from '../utils/channel';
+import {debug, error, info} from '../utils/logging';
 import {DMChannel, FetchMessagesOptions, Message, NewsChannel, TextChannel} from 'discord.js';
 
 type FetchRequestCallback = (

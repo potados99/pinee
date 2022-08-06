@@ -1,8 +1,8 @@
 import MessageRef from '../entities/MessageRef';
-import {debug, info, warn} from '../utils/logging';
 import RedisArchiveCache from '../repository/RedisArchiveCache';
 import MessageRepository from '../repository/MessageRepository';
 import {stringifyMessage} from '../utils/message';
+import {debug, info, warn} from '../utils/logging';
 import {Message, TextChannel} from 'discord.js';
 import {extractOriginalMessageRef} from '../utils/archive';
 
