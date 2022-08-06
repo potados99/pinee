@@ -1,4 +1,4 @@
-import { Client, Message, MessageEmbed, MessageReaction, PartialMessage } from "discord.js";
+import {Client, Message, MessageEmbed, MessageReaction, PartialMessage} from 'discord.js';
 
 /**
  * 주어진 메시지가 길드 없이 온 DM인지 여부를 가져옵니다.
@@ -25,7 +25,7 @@ export function isByThisBot(client: Client, message: Message): Boolean {
 export function isMentioningThisBot(client: Client, message: Message): Boolean {
   const mentionedUsers = message.mentions.users.array();
 
-  return mentionedUsers.find(user => user.id === client.user?.id) != null;
+  return mentionedUsers.find((user) => user.id === client.user?.id) != null;
 }
 
 /**
@@ -40,16 +40,20 @@ export function isPinned(message: Message) {
  * 인자로 들어온 모든 메시지들에 대해 fetch가 완료된 버전을 반환합니다.
  * @param messages fetch가 필요할 수도 있는 메시지들
  */
-export async function messagesFetched(...messages: (Message | PartialMessage)[]): Promise<Message[]> {
-  return Promise.all(messages.map(m => m.partial ? m.fetch() : m));
+export async function messagesFetched(
+  ...messages: (Message | PartialMessage)[]
+): Promise<Message[]> {
+  return Promise.all(messages.map((m) => (m.partial ? m.fetch() : m)));
 }
 
 /**
  * 인자로 들어온 모든 리액션들에 대해 fetch가 완료된 버전을 반환합니다.
  * @param reactions fetch가 필요할 수도 있는 리액션들
  */
-export async function reactionsFetched(...reactions: (MessageReaction)[]): Promise<MessageReaction[]> {
-  return Promise.all(reactions.map(r => r.partial ? r.fetch() : r));
+export async function reactionsFetched(
+  ...reactions: MessageReaction[]
+): Promise<MessageReaction[]> {
+  return Promise.all(reactions.map((r) => (r.partial ? r.fetch() : r)));
 }
 
 /**

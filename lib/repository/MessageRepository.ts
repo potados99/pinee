@@ -1,6 +1,6 @@
-import { Channel, DMChannel, Guild, Message, NewsChannel, TextChannel } from "discord.js";
-import { isMessageChannel } from "../utils/channel";
-import MessageFetcher from "../utils/MessageFetcher";
+import {Channel, DMChannel, Guild, Message, NewsChannel, TextChannel} from 'discord.js';
+import {isMessageChannel} from '../utils/channel';
+import MessageFetcher from '../utils/MessageFetcher';
 
 /**
  * Prefix rule:
@@ -37,7 +37,10 @@ class MessageRepository {
    * @param messageId
    * @private
    */
-  private static async getMessageSafe(channel: TextChannel | NewsChannel | DMChannel, messageId?: string) {
+  private static async getMessageSafe(
+    channel: TextChannel | NewsChannel | DMChannel,
+    messageId?: string
+  ) {
     if (!messageId) {
       return undefined;
     }
@@ -66,9 +69,14 @@ class MessageRepository {
     until?: string,
     progress?: Message
   ): Promise<Message[]> {
-    return await new MessageFetcher(channel).fetch(async (numberOfFetchedMessages, accumulatedRequestCount) => {
-      await progress?.edit(`${channel} 채널에서 ${accumulatedRequestCount}번째 요청으로 ${numberOfFetchedMessages}개의 메시지를 가져왔습니다.`);
-    }, until);
+    return await new MessageFetcher(channel).fetch(
+      async (numberOfFetchedMessages, accumulatedRequestCount) => {
+        await progress?.edit(
+          `${channel} 채널에서 ${accumulatedRequestCount}번째 요청으로 ${numberOfFetchedMessages}개의 메시지를 가져왔습니다.`
+        );
+      },
+      until
+    );
   }
 }
 

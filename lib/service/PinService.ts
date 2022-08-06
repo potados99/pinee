@@ -1,8 +1,7 @@
-import { MessageReaction } from "discord.js";
+import {MessageReaction} from 'discord.js';
 
 export default class PinService {
-  constructor(private readonly reaction: MessageReaction) {
-  }
+  constructor(private readonly reaction: MessageReaction) {}
 
   async handleReaction() {
     await this.handleSafe();

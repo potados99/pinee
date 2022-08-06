@@ -1,14 +1,10 @@
-import { Message, MessageEmbedOptions, MessageReaction, User } from "discord.js";
-import TellUser from "./TellUser";
-import { isOwner } from "../utils/user";
-import AskOptions from "./AskOptions";
+import {Message, MessageEmbedOptions, MessageReaction, User} from 'discord.js';
+import TellUser from './TellUser';
+import {isOwner} from '../utils/user';
+import AskOptions from './AskOptions';
 
 export default class AskUserWithOptions {
-  constructor(
-    private readonly message: Message,
-    private readonly options: AskOptions
-  ) {
-  }
+  constructor(private readonly message: Message, private readonly options: AskOptions) {}
 
   public async execute(messageData: MessageEmbedOptions) {
     const dialogSent = await this.ask(messageData);
@@ -31,13 +27,13 @@ export default class AskUserWithOptions {
     const confirmReactionFilter = (reaction: MessageReaction, user: User) => {
       const oneOfAvailableOptions = this.options.choices!!.includes(reaction.emoji.name);
       const notByThisBot = user.id !== this.message.client.user?.id;
-      const byPermittedUser = !this.options.onlyForOwner || (isOwner(user, dialogSent.guild!!));
+      const byPermittedUser = !this.options.onlyForOwner || isOwner(user, dialogSent.guild!!);
 
       return oneOfAvailableOptions && notByThisBot && byPermittedUser;
     };
 
     // Wait until first reaction or timeout.
-    const awaitOptions = { max: 1, time: this.options.replyTimeout };
+    const awaitOptions = {max: 1, time: this.options.replyTimeout};
 
     // Wait for user's answer
     const usersAnswer = await dialogSent.awaitReactions(confirmReactionFilter, awaitOptions);

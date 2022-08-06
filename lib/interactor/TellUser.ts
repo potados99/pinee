@@ -1,8 +1,7 @@
-import Discord, { Message, MessageEmbedOptions } from "discord.js";
+import Discord, {Message, MessageEmbedOptions} from 'discord.js';
 
 export default class TellUser {
-  constructor(private readonly message: Message) {
-  }
+  constructor(private readonly message: Message) {}
 
   public async execute(messageData: MessageEmbedOptions) {
     return await this.tell(messageData);

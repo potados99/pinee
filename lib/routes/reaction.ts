@@ -1,8 +1,8 @@
-import { log } from "../utils/logging";
-import { MessageReaction } from "discord.js";
-import config from "../../config";
-import PinByReactionResponder from "../responder/PinByReactionResponder";
-import { stringifyMessage } from "../utils/message";
+import {log} from '../utils/logging';
+import {MessageReaction} from 'discord.js';
+import config from '../../config';
+import PinByReactionResponder from '../responder/PinByReactionResponder';
+import {stringifyMessage} from '../utils/message';
 
 /**
  * 새로운 리액션이 추가되었을 때에 실행할 동작을 정의합니다.

@@ -1,12 +1,7 @@
-import { Message } from "discord.js";
+import {Message} from 'discord.js';
 
 export default class MessageRef {
-  constructor(
-    readonly guildId: string,
-    readonly channelId: string,
-    readonly messageId: string
-  ) {
-  }
+  constructor(readonly guildId: string, readonly channelId: string, readonly messageId: string) {}
 
   toString(): string {
     return `${this.guildId}/${this.channelId}/${this.messageId}`;
@@ -17,7 +12,7 @@ export default class MessageRef {
   }
 
   static fromString(raw: string): MessageRef {
-    const [guildId, channelId, messageId] = raw.split("/");
+    const [guildId, channelId, messageId] = raw.split('/');
 
     return new MessageRef(guildId, channelId, messageId);
   }

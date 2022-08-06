@@ -1,7 +1,7 @@
-import { log } from "./logging";
-import config from "../../config";
-import { getChannelName } from "./channel";
-import { ChannelLogsQueryOptions, DMChannel, Message, NewsChannel, TextChannel } from "discord.js";
+import {log} from './logging';
+import config from '../../config';
+import {getChannelName} from './channel';
+import {ChannelLogsQueryOptions, DMChannel, Message, NewsChannel, TextChannel} from 'discord.js';
 
 type FetchRequestCallback = (
   numberOfFetchedMessages: number,
@@ -10,24 +10,16 @@ type FetchRequestCallback = (
 ) => void;
 
 export default class MessageFetcher {
-  constructor(private readonly channel: TextChannel | NewsChannel | DMChannel) {
-  }
+  constructor(private readonly channel: TextChannel | NewsChannel | DMChannel) {}
 
-  async fetch(
-    onEveryRequest?: FetchRequestCallback,
-    until?: string
-  ): Promise<Message[]> {
+  async fetch(onEveryRequest?: FetchRequestCallback, until?: string): Promise<Message[]> {
     const out: Message[] = [];
 
     const onMessage = (message: Message) => {
       out.push(message);
     };
 
-    await this.forEachMessages(
-      onMessage,
-      onEveryRequest,
-      until
-    );
+    await this.forEachMessages(onMessage, onEveryRequest, until);
 
     log(`'${getChannelName(this.channel)}' 채널에서 메시지를 총 ${out.length}개 가져왔습니다.`);
 
@@ -49,14 +41,13 @@ export default class MessageFetcher {
     onEveryRequest?: FetchRequestCallback,
     until?: string
   ): Promise<void> {
-
     let lastId: string | undefined = undefined;
     let requestsSentCount = 0;
 
     while (true) {
       const options: ChannelLogsQueryOptions = {
         limit: config.services.discord.api.fetchLimitPerRequest,
-        before: lastId
+        before: lastId,
       };
 
       let messages;
@@ -74,7 +65,11 @@ export default class MessageFetcher {
 
       lastId = messages[messages.length - 1].id;
 
-      log(`#${requestsSentCount}: '${getChannelName(this.channel)}' 채널에서 메시지를 ${messages.length}개 가져왔습니다.`);
+      log(
+        `#${requestsSentCount}: '${getChannelName(this.channel)}' 채널에서 메시지를 ${
+          messages.length
+        }개 가져왔습니다.`
+      );
 
       for (const message of messages) {
         await onMessage(message);

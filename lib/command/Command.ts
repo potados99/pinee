@@ -1,7 +1,6 @@
-import { Message } from "discord.js";
+import {Message} from 'discord.js';
 
 export default class Command {
-
   protected name: string;
 
   constructor(command: string) {
@@ -13,6 +12,6 @@ export default class Command {
   }
 
   async execute(message: Message) {
-    throw new Error("Not implemented!");
+    throw new Error('Not implemented!');
   }
 }

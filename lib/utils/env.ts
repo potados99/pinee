@@ -3,4 +3,3 @@ export default function getEnv(key: string, fallback: string | null = null): str
 
   return allEnvArgs[key] || fallback;
 }
-
