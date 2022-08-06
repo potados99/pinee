@@ -1,4 +1,4 @@
-import {log} from '../utils/logging';
+import {info} from '../utils/logging';
 import {isArchived} from '../utils/archive';
 import {Client, Message} from 'discord.js';
 import PinMessageUpdateResponder from '../responder/PinMessageUpdateResponder';
@@ -20,7 +20,7 @@ export async function onMessageUpdate(client: Client, before: Message, after: Me
   }
 
   if (isPinned(after) || (await isArchived(after))) {
-    log(
+    info(
       `📝 메시지를 새로 아카이브하거나 기존 아카이브를 업데이트합니다: ${stringifyMessage(after)}`
     );
 

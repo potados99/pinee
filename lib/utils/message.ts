@@ -40,9 +40,7 @@ export function isPinned(message: Message) {
  * 인자로 들어온 모든 메시지들에 대해 fetch가 완료된 버전을 반환합니다.
  * @param messages fetch가 필요할 수도 있는 메시지들
  */
-export async function messagesFetched(
-  ...messages: (Message | PartialMessage)[]
-): Promise<Message[]> {
+export async function messagesFetched(...messages: (Message | PartialMessage)[]): Promise<Message[]> {
   return Promise.all(messages.map((m) => (m.partial ? m.fetch() : m)));
 }
 
@@ -50,9 +48,7 @@ export async function messagesFetched(
  * 인자로 들어온 모든 리액션들에 대해 fetch가 완료된 버전을 반환합니다.
  * @param reactions fetch가 필요할 수도 있는 리액션들
  */
-export async function reactionsFetched(
-  ...reactions: MessageReaction[]
-): Promise<MessageReaction[]> {
+export async function reactionsFetched(...reactions: MessageReaction[]): Promise<MessageReaction[]> {
   return Promise.all(reactions.map((r) => (r.partial ? r.fetch() : r)));
 }
 
@@ -75,5 +71,5 @@ export function extractEmbed(message: Message): MessageEmbed | undefined {
  * @param message 메시지
  */
 export function stringifyMessage(message: Message): string {
-  return `'${message.author.username}'님이 보낸 메시지(내용은 '${message.cleanContent}', reference는 '${message.reference}')`;
+  return `'${message.author.username}'님이 보낸 메시지(내용은 '${message.cleanContent}', id는 '${message.id}')`;
 }

@@ -1,4 +1,4 @@
-import {log} from '../utils/logging';
+import {info} from '../utils/logging';
 import DmResponder from '../responder/DmResponder';
 import MentionResponder from '../responder/MentionResponder';
 import {Client, Message} from 'discord.js';
@@ -15,14 +15,14 @@ export async function onMessage(client: Client, message: Message) {
   }
 
   if (isFromDm(message)) {
-    log(`💌 새 DM이 도착하였습니다: ${stringifyMessage(message)}`);
+    info(`💌 새 DM이 도착하였습니다: ${stringifyMessage(message)}`);
 
     await new DmResponder(message).handle();
     return;
   }
 
   if (isMentioningThisBot(client, message)) {
-    log(`📨 새 Mention 메시지가 도착하였습니다: ${stringifyMessage(message)}`);
+    info(`📨 새 Mention 메시지가 도착하였습니다: ${stringifyMessage(message)}`);
 
     await new MentionResponder(message).handle();
     return;

@@ -1,5 +1,5 @@
 import config from '../../config';
-import {error, log} from '../utils/logging';
+import {debug, error, info} from '../utils/logging';
 import {getChannelName} from '../utils/channel';
 import {ChannelLogsQueryOptions, DMChannel, Message, NewsChannel, TextChannel} from 'discord.js';
 
@@ -31,7 +31,7 @@ export default class MessageFetcher {
 
     await this.fetchContinuously(onMessage, onEveryRequest, until);
 
-    log(`'${getChannelName(this.channel)}' 채널에서 메시지를 총 ${out.length}개 가져왔습니다.`);
+    info(`'${getChannelName(this.channel)}' 채널에서 메시지를 총 ${out.length}개 가져왔습니다.`);
 
     return out;
   }
@@ -52,7 +52,8 @@ export default class MessageFetcher {
        */
       const options: ChannelLogsQueryOptions = {
         limit: config.services.discord.api.fetchLimitPerRequest,
-        before: lastId,
+        before: lastId, // 지난 루프에서 가져온 가장 오래된 것 이전(before)부터 가져옵니다.
+        after: until, // 아무리 과거로 가도, 특정 시점(until) 이후(after)부터 가져옵니다.
       };
 
       try {
@@ -74,10 +75,8 @@ export default class MessageFetcher {
 
       lastId = messages[messages.length - 1].id;
 
-      log(
-        `#${requestsSentCount}: '${getChannelName(this.channel)}' 채널에서 메시지를 ${
-          messages.length
-        }개 가져왔습니다.`
+      debug(
+        `#${requestsSentCount}: '${getChannelName(this.channel)}' 채널에서 메시지를 ${messages.length}개 가져왔습니다.`
       );
 
       /**
@@ -96,10 +95,6 @@ export default class MessageFetcher {
        * Part 4.
        * 계속 해도 될 지 결정합니다.
        */
-      if (until != null && lastId < until) {
-        break;
-      }
-
       if (messages.length < config.services.discord.api.fetchLimitPerRequest) {
         break;
       }

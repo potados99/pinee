@@ -1,4 +1,4 @@
-import {log} from '../utils/logging';
+import {info} from '../utils/logging';
 import {MessageReaction} from 'discord.js';
 import config from '../../config';
 import PinByReactionResponder from '../responder/PinByReactionResponder';
@@ -23,7 +23,7 @@ export async function onReactionAdd(reaction: MessageReaction) {
     return;
   }
 
-  log(`📌 핀으로 메시지를 고정합니다: ${stringifyMessage(reaction.message)}`);
+  info(`📌 핀으로 메시지를 고정합니다: ${stringifyMessage(reaction.message)}`);
 
   await new PinByReactionResponder(reaction).handle();
 }

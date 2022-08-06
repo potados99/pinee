@@ -1,12 +1,17 @@
-import Discord, {DMChannel, Guild, Message} from 'discord.js';
-import {extractEmbed, stringifyMessage} from './message';
+import {warn} from './logging';
 import config from '../../config';
 import MessageRef from '../entities/MessageRef';
 import ArchiveService from '../service/ArchiveService';
-import ChannelRepository from '../repository/ChannelRepository';
-import {warn} from './logging';
+import ChannelService from '../service/ChannelService';
+import {extractEmbed, stringifyMessage} from './message';
+import Discord, {DMChannel, Guild, Message, MessageEmbed} from 'discord.js';
 
-export function composeArchiveEmbed(guild: Guild, message: Message) {
+/**
+ * 아카이브에 실릴 embed를 작성합니다.
+ * @param guild 길드
+ * @param message 아카이브 대상이 되는 원본 메시지
+ */
+export function composeArchiveEmbed(guild: Guild, message: Message): MessageEmbed {
   const name = message.author.username;
   const avatarUrl = message.author.avatarURL();
   const pinContent = message.content;
@@ -117,7 +122,7 @@ export function extractOriginalMessageRef(archive: Message): MessageRef | undefi
  * @param message 아카이브 여부를 확인할 메시지
  */
 export async function isArchived(message: Message): Promise<Boolean> {
-  const archiveChannel = await ChannelRepository.getArchiveChannel(message.guild!!);
+  const archiveChannel = await new ChannelService().findArchiveChannel(message.guild!!);
   if (archiveChannel == null) {
     warn(
       `메시지의 아카이브 여부를 확인하려는데, 아카이브 채널이 없습니다. 따라서 ${stringifyMessage(

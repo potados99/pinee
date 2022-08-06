@@ -1,19 +1,20 @@
-import {Message, MessageEmbedOptions} from 'discord.js';
 import config from '../../config';
+import Interactor from './Interactor';
 import AskUserWithOptions from './AskUserWithOptions';
-import AskOptions from './AskOptions';
+import {Message, MessageEmbedOptions} from 'discord.js';
 
-export default class AskUserBoolean {
-  private readonly options: AskOptions = {
-    choices: ['✅', '❌'],
-    onlyForOwner: this.onlyForOwner,
-    replyTimeout: config.behaviors.interaction.confirm.timeoutMillis,
-  };
-
+/**
+ * 긍정과 부정 중 하나를 선택하도록 사용자에게 물어보는 상호작용입니다.
+ */
+export default class AskUserBoolean implements Interactor<MessageEmbedOptions, Boolean> {
   constructor(private readonly message: Message, private readonly onlyForOwner: boolean = false) {}
 
-  public async execute(messageData: MessageEmbedOptions) {
-    const reply = await new AskUserWithOptions(this.message, this.options).execute(messageData);
+  public async execute(messageData: MessageEmbedOptions): Promise<Boolean> {
+    const reply = await new AskUserWithOptions(this.message, {
+      choices: ['✅', '❌'],
+      onlyForOwner: this.onlyForOwner,
+      replyTimeout: config.behaviors.interaction.confirm.timeoutMillis,
+    }).execute(messageData);
 
     return !!reply && reply === '✅';
   }

@@ -34,13 +34,19 @@ export default class SimSimService {
 
     switch (status) {
       case 227:
-        return '*고장남: 파라미터 누락!';
+        return '🚧 파라미터 누락!';
       case 228:
         return '(이해 못함)';
       case 403:
-        return '*고장남: 키 잘못됨!';
+        return '🚧 키 잘못됨!';
       case 429:
         return '(내향에너지 충전중...다음달에 돌아올게요)';
+      case undefined:
+        return '🚧 챗봇 응답 코드가 없음!';
+    }
+
+    if (atext == null || atext.length === 0) {
+      return '🚧 챗봇 응답 내용이 없음!';
     }
 
     return atext as string;

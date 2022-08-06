@@ -1,4 +1,4 @@
-import {log} from '../utils/logging';
+import {info} from '../utils/logging';
 import MessageRef from '../entities/MessageRef';
 import RedisArchiveCache from '../repository/RedisArchiveCache';
 import MessageRepository from '../repository/MessageRepository';
@@ -15,7 +15,7 @@ export default class ArchiveService {
    * @param message 아카이브 대상이 되는 원본 메시지
    */
   async findArchive(message: Message) {
-    log(`아카이브 검색! ${stringifyMessage(message)}에 대한 아카이브를 찾습니다.`);
+    info(`아카이브 검색! ${stringifyMessage(message)}에 대한 아카이브를 찾습니다.`);
 
     await this.updateCache();
 
@@ -33,10 +33,7 @@ export default class ArchiveService {
     if (archiveRef == null) {
       return undefined;
     } else {
-      return await MessageRepository.getMessageFromChannel(
-        this.archiveChannel,
-        archiveRef.messageId
-      );
+      return await MessageRepository.getMessageFromChannel(this.archiveChannel, archiveRef.messageId);
     }
   }
 
@@ -48,11 +45,11 @@ export default class ArchiveService {
     const existingArchive = await this.findArchive(message);
 
     if (existingArchive == null) {
-      log(`아카이브 새로 생성! ${stringifyMessage(message)}에 대해 새로운 아카이브를 생성합니다.`);
+      info(`아카이브 새로 생성! ${stringifyMessage(message)}에 대해 새로운 아카이브를 생성합니다.`);
 
       return await this.createArchive(message);
     } else {
-      log(`아카이브 업데이트! ${stringifyMessage(message)}에 대한 기존 아카이브를 업데이트합니다.`);
+      info(`아카이브 업데이트! ${stringifyMessage(message)}에 대한 기존 아카이브를 업데이트합니다.`);
 
       return await this.updateArchive(existingArchive, message);
     }
@@ -62,14 +59,9 @@ export default class ArchiveService {
     const embed = composeArchiveEmbed(message.guild!!, message);
     const newlyArchived = await this.archiveChannel.send(embed);
 
-    log(
-      `'${this.archiveChannel.name}' 채널에 '${message.id}'에 대한 아카이브 '${newlyArchived.id}'가 생겼습니다.`
-    );
+    info(`'${this.archiveChannel.name}' 채널에 '${message.id}'에 대한 아카이브 '${newlyArchived.id}'가 생겼습니다.`);
 
-    await RedisArchiveCache.putArchiveRef(
-      MessageRef.fromMessage(message),
-      MessageRef.fromMessage(newlyArchived)
-    );
+    await RedisArchiveCache.putArchiveRef(MessageRef.fromMessage(message), MessageRef.fromMessage(newlyArchived));
 
     await RedisArchiveCache.putLastCachedArchiveId(this.archiveChannel, newlyArchived.id);
 
