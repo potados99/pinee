@@ -9,7 +9,7 @@ import {isByThisBot, isFromDm, isMentioningThisBot, stringifyMessage} from '../u
  * @param client 클라이언트
  * @param message 새 메시지
  */
-export async function onMessage(client: Client, message: Message) {
+export async function onMessageCreate(client: Client, message: Message) {
   if (isByThisBot(client, message)) {
     return;
   }

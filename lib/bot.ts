@@ -1,11 +1,11 @@
 import config from '../config';
-import Discord, {GatewayIntentBits, Partials} from 'discord.js';
 import {onReady} from './routes/ready';
-import {onMessage} from './routes/message';
 import {onReactionAdd} from './routes/reaction';
-import registerCommands from './command/commands';
+import {onMessageCreate} from './routes/message';
 import {onMessageUpdate} from './routes/update';
+import onInteractionCreate from './routes/interaction';
 import {messagesFetched, reactionsFetched} from './utils/message';
+import Discord, {GatewayIntentBits, Partials} from 'discord.js';
 
 export default async function startBot() {
   const client = new Discord.Client({
@@ -27,7 +27,7 @@ export default async function startBot() {
   });
 
   client.on('messageCreate', async (message) => {
-    await onMessage(client, message);
+    await onMessageCreate(client, message);
   });
 
   client.on('messageUpdate', async (rawBefore, rawAfter) => {
@@ -42,7 +42,9 @@ export default async function startBot() {
     await onReactionAdd(reaction);
   });
 
-  await client.login(config.services.discord.bot.auth.token);
+  client.on('interactionCreate', async (interaction) => {
+    await onInteractionCreate(interaction);
+  });
 
-  await registerCommands('786876831181045781');
+  await client.login(config.services.discord.bot.auth.token);
 }
