@@ -4,20 +4,25 @@ import config from "../../config";
 import PinByReactionResponder from "../responder/PinByReactionResponder";
 
 /**
- * 새로운 리액션이 추가되었을 때에
- * @param reaction
+ * 새로운 리액션이 추가되었을 때에 실행할 동작을 정의합니다.
+ * @param reaction 새로운 리액션
  */
 export async function onReactionAdd(reaction: MessageReaction) {
-  if (reaction.emoji.name !== '📌') {
+  const reactionEmoji = reaction.emoji.name;
+  const reactionCount = reaction.count || 0;
+
+  const thisIsThePin = reactionEmoji in config.behaviors.pinByReaction.availablePins;
+  const atExactThreshold = reactionCount === config.behaviors.pinByReaction.pinCountThreshold;
+
+  if (!thisIsThePin) {
     return;
   }
 
-  if ((reaction.count || 0) !== config.behaviors.pinByReaction.pinCountThreshold) {
-    // Trigger on rising edge
+  if (!atExactThreshold) {
     return;
   }
 
-  log(`📌 Pin by reaction: '${reaction.message.id}' will be pinned!`);
+  log(`📌 리액션으로 고정: 메시지 '${reaction.message.id}'을(를) 고정합니다!`);
 
   await new PinByReactionResponder(reaction).handle();
 }
