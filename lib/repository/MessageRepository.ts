@@ -56,7 +56,6 @@ class MessageRepository {
     }
 
     // @ts-ignore
-    // Safe to force casting.
     const messageChannel: TextChannel | NewsChannel | DMChannel = channel;
 
     return await this.fetchMessages(messageChannel, until, progress);

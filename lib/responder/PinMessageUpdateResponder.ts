@@ -1,3 +1,4 @@
+import { log } from "../utils/logging";
 import { Message } from "discord.js";
 import Responder from "./Responder";
 import ArchiveService from "../service/ArchiveService";
@@ -10,7 +11,7 @@ export default class PinMessageUpdateResponder implements Responder {
   public async handle() {
     const archiveChannel = await new GetOrCreateArchiveChannel(this.message).execute();
     if (archiveChannel == null) {
-      console.log("아카이브 채널이 없어요!");
+      log("아카이브 채널이 없어요!");
       return;
     }
 

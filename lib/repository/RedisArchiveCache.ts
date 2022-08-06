@@ -1,3 +1,4 @@
+import { log } from "../utils/logging";
 import { createClient } from "redis";
 import config from "../../config";
 import MessageRef from "../entities/MessageRef";
@@ -12,7 +13,7 @@ class RedisArchiveCache {
 
   constructor(private readonly url: string) {
     this.client.on("error", async (e) => {
-      console.log("Redis 뻗음!", e);
+      log("Redis 뻗음!", e);
     });
   }
 

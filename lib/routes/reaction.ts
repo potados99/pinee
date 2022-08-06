@@ -1,3 +1,4 @@
+import { log } from "../utils/logging";
 import { MessageReaction } from "discord.js";
 import config from "../../config";
 import PinByReactionResponder from "../responder/PinByReactionResponder";
@@ -12,7 +13,7 @@ export async function onReactionAdd(reaction: MessageReaction) {
     return;
   }
 
-  console.log(`📌 Pin by reaction: '${reaction.message.id}' will be pinned!`);
+  log(`📌 Pin by reaction: '${reaction.message.id}' will be pinned!`);
 
   await new PinByReactionResponder(reaction).handle();
 }

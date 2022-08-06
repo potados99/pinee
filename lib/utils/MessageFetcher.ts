@@ -1,3 +1,4 @@
+import { log } from "./logging";
 import config from "../../config";
 import { getChannelName } from "./channel";
 import { ChannelLogsQueryOptions, DMChannel, Message, NewsChannel, TextChannel } from "discord.js";
@@ -28,7 +29,7 @@ export default class MessageFetcher {
       until
     );
 
-    console.log(`'${getChannelName(this.channel)}' 채널에서 메시지를 총 ${out.length}개 가져왔습니다.`);
+    log(`'${getChannelName(this.channel)}' 채널에서 메시지를 총 ${out.length}개 가져왔습니다.`);
 
     return out;
   }
@@ -73,7 +74,7 @@ export default class MessageFetcher {
 
       lastId = messages[messages.length - 1].id;
 
-      console.log(`#${requestsSentCount}: '${getChannelName(this.channel)}' 채널에서 메시지를 ${messages.length}개 가져왔습니다.`);
+      log(`#${requestsSentCount}: '${getChannelName(this.channel)}' 채널에서 메시지를 ${messages.length}개 가져왔습니다.`);
 
       for (const message of messages) {
         await onMessage(message);

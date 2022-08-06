@@ -1,37 +1,44 @@
+import { log } from "../utils/logging";
+import MessageRef from "../entities/MessageRef";
 import RedisArchiveCache from "../repository/RedisArchiveCache";
 import MessageRepository from "../repository/MessageRepository";
 import { Message, TextChannel } from "discord.js";
 import { composeArchiveEmbed, extractOriginalMessageRef } from "../utils/archive";
-import MessageRef from "../entities/MessageRef";
 
 export default class ArchiveService {
   constructor(private readonly archiveChannel: TextChannel) {
   }
 
+  /**
+   * 주어진 메시지에 대해 이미 만들어진 아카이브를 찾습니다.
+   * @param message 아카이브 대상이 되는 원본 메시지
+   */
   async getArchive(message: Message) {
-    console.log(`'${message.content}'에 대한 아카이브를 찾습니다.`);
+    log(`내용이 '${message.content}'인 메시지에 대한 아카이브를 찾습니다.`);
 
     const firstTry = await this.tryResolveArchiveFromCache(message);
     if (firstTry != null) {
-      console.log("캐시 힛!");
+      log("캐시 힛!");
       return firstTry;
     }
 
-    console.log("캐시 미스!");
+    log("캐시 미스!");
 
     await this.fillCache();
 
     const secondTry = await this.tryResolveArchiveFromCache(message);
     if (secondTry != null) {
-      console.log("Fetching 후 캐시에서 찾음!");
+      log("Fetching 후 캐시에서 찾음!");
       return secondTry;
     }
 
-    console.log(`Fetching 후에도 '${message.content}'에 대한 아카이브를 찾지 못하였습니다.`);
+    log(`Fetching 후에도 '${message.content}'에 대한 아카이브를 찾지 못하였습니다.`);
   }
 
   private async tryResolveArchiveFromCache(original: Message): Promise<Message | undefined> {
-    const archiveRef = await RedisArchiveCache.getArchiveRef(MessageRef.fromMessage(original));
+    const messageRef = MessageRef.fromMessage(original);
+    const archiveRef = await RedisArchiveCache.getArchiveRef(messageRef);
+
     if (archiveRef == null) {
       return undefined;
     }
@@ -40,7 +47,7 @@ export default class ArchiveService {
   }
 
   private async fillCache(): Promise<void> {
-    console.log("Fetching 시작!");
+    log("캐시를 채웁니다. Fetching 시작!");
 
     const lastId = await RedisArchiveCache.getLastFetchedArchiveId(this.archiveChannel);
 
@@ -59,16 +66,16 @@ export default class ArchiveService {
 
     await RedisArchiveCache.putLastFetchedArchiveId(this.archiveChannel, allArchives[0]?.id/*가장 최근*/);
 
-    console.log("캐시 채움!");
+    log("캐시 채움!");
   }
 
   async createArchive(message: Message): Promise<Message> {
-    console.log(`새 아카이브를 생성합니다.`);
+    log(`새 아카이브를 생성합니다.`);
 
     const embed = composeArchiveEmbed(message.guild!!, message);
     const newlyArchived = await this.archiveChannel.send(embed);
 
-    console.log(`'${this.archiveChannel.name}' 채널에 '${message.id}'에 대한 아카이브 '${newlyArchived.id}'가 생겼습니다.`);
+    log(`'${this.archiveChannel.name}' 채널에 '${message.id}'에 대한 아카이브 '${newlyArchived.id}'가 생겼습니다.`);
 
     await RedisArchiveCache.putArchiveRef(
       MessageRef.fromMessage(message),
@@ -81,7 +88,7 @@ export default class ArchiveService {
   }
 
   async updateArchive(archive: Message, message: Message): Promise<void> {
-    console.log(`기존 아카이브를 업데이트합니다.`);
+    log(`기존 아카이브를 업데이트합니다.`);
 
     await archive.edit(composeArchiveEmbed(message.guild!!, message));
   }
