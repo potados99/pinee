@@ -1,7 +1,7 @@
 import config from '../../config';
 import {debug, error, info} from '../utils/logging';
 import {getChannelName} from '../utils/channel';
-import {ChannelLogsQueryOptions, DMChannel, Message, NewsChannel, TextChannel} from 'discord.js';
+import {DMChannel, FetchMessagesOptions, Message, NewsChannel, TextChannel} from 'discord.js';
 
 type FetchRequestCallback = (
   numberOfFetchedMessages: number,
@@ -50,16 +50,17 @@ export default class MessageFetcher {
        * Part 1.
        * API 호출합니다.
        */
-      const options: ChannelLogsQueryOptions = {
+      const options: FetchMessagesOptions = {
         limit: config.services.discord.api.fetchLimitPerRequest,
         before: lastId, // 지난 루프에서 가져온 가장 오래된 것 이전(before)부터 가져옵니다.
         after: until, // 아무리 과거로 가도, 특정 시점(until) 이후(after)부터 가져옵니다.
+        cache: false,
       };
 
       try {
-        const fetched = await this.channel.messages.fetch(options, false, true);
+        const fetched = await this.channel.messages.fetch(options);
         requestsSentCount++;
-        messages = fetched.array();
+        messages = Array.from(fetched.values());
       } catch (e: any) {
         error(`예상치 못한 에러입니다: ${e.message}`);
         continue;

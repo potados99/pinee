@@ -9,7 +9,7 @@ import {stringifyMessage} from '../utils/message';
  * @param reaction 새로운 리액션
  */
 export async function onReactionAdd(reaction: MessageReaction) {
-  const reactionEmoji = reaction.emoji.name;
+  const reactionEmoji = reaction.emoji.name!!;
   const reactionCount = reaction.count || 0;
 
   const thisIsThePin = reactionEmoji in config.behaviors.pinByReaction.availablePins;

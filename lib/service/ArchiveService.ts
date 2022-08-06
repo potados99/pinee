@@ -57,7 +57,7 @@ export default class ArchiveService {
 
   private async createArchive(message: Message): Promise<Message> {
     const embed = composeArchiveEmbed(message.guild!!, message);
-    const newlyArchived = await this.archiveChannel.send(embed);
+    const newlyArchived = await this.archiveChannel.send({embeds: [embed]});
 
     info(`'${this.archiveChannel.name}' 채널에 '${message.id}'에 대한 아카이브 '${newlyArchived.id}'가 생겼습니다.`);
 
@@ -69,6 +69,6 @@ export default class ArchiveService {
   }
 
   private async updateArchive(archive: Message, message: Message): Promise<Message> {
-    return await archive.edit(composeArchiveEmbed(message.guild!!, message));
+    return await archive.edit({embeds: [composeArchiveEmbed(message.guild!!, message)]});
   }
 }

@@ -1,5 +1,5 @@
 import {isTextChannel} from '../utils/channel';
-import {Guild, TextChannel} from 'discord.js';
+import {ChannelType, Guild, TextChannel} from 'discord.js';
 
 /**
  * 채널 정보를 제공하는 저장소입니다.
@@ -11,10 +11,7 @@ class ChannelRepository {
    * @param topic 채널의 topic에 이 문자열이 포함되면 해당 채널을 가져옵니다.
    */
   findTextChannelByTopic(guild: Guild, topic: string): TextChannel | undefined {
-    return this.findTextChannel(
-      guild,
-      (channel) => !!channel.topic && channel.topic.includes(topic)
-    );
+    return this.findTextChannel(guild, (channel) => !!channel.topic && channel.topic.includes(topic));
   }
 
   /**
@@ -22,15 +19,10 @@ class ChannelRepository {
    * @param guild 채널을 찾을 길드
    * @param predicate 채널에 적용할 predicate
    */
-  findTextChannel(
-    guild: Guild,
-    predicate: (channel: TextChannel) => boolean
-  ): TextChannel | undefined {
-    const allChannels = guild.channels.cache.array();
+  findTextChannel(guild: Guild, predicate: (channel: TextChannel) => boolean): TextChannel | undefined {
+    const allChannels = guild.channels.cache;
 
-    return allChannels.find(
-      (channel) => isTextChannel(channel) && predicate(channel as TextChannel)
-    ) as TextChannel;
+    return allChannels.find((channel) => isTextChannel(channel) && predicate(channel as TextChannel)) as TextChannel;
   }
 
   /**
@@ -40,8 +32,9 @@ class ChannelRepository {
    * @param topic 채널 토픽
    */
   createTextChannel(guild: Guild, name: string, topic: string): Promise<TextChannel> {
-    return guild.channels.create(name, {
-      type: 'text',
+    return guild.channels.create({
+      name: name,
+      type: ChannelType.GuildText,
       topic: topic,
     });
   }

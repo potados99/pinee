@@ -4,14 +4,14 @@ import MessageRef from '../entities/MessageRef';
 import ArchiveService from '../service/ArchiveService';
 import ChannelService from '../service/ChannelService';
 import {extractEmbed, stringifyMessage} from './message';
-import Discord, {DMChannel, Guild, Message, MessageEmbed} from 'discord.js';
+import {ChannelType, EmbedBuilder, Guild, Message} from 'discord.js';
 
 /**
  * 아카이브에 실릴 embed를 작성합니다.
  * @param guild 길드
  * @param message 아카이브 대상이 되는 원본 메시지
  */
-export function composeArchiveEmbed(guild: Guild, message: Message): MessageEmbed {
+export function composeArchiveEmbed(guild: Guild, message: Message): EmbedBuilder {
   const name = message.author.username;
   const avatarUrl = message.author.avatarURL();
   const pinContent = message.content;
@@ -20,33 +20,20 @@ export function composeArchiveEmbed(guild: Guild, message: Message): MessageEmbe
   const guildId = guild.id;
   const channelId = message.channel.id;
   const messageId = message.id;
-  const firstImageUrl = message.attachments.first()?.url;
+  const firstImageUrl = message.attachments.first()?.url ?? null;
 
-  // User can explicitly click this link.
   const messageUrl = `https://discordapp.com/channels/${guildId}/${channelId}/${messageId}`;
   const jumpToMessageLink = `\n\n[${config.resources.string.jumpToMessage}](${messageUrl})`;
 
-  let channelName; // No channel name on DMChannel.
-  if (!(message.channel instanceof DMChannel)) {
-    channelName = message.channel.name;
-  }
+  const channelName = message.channel.type === ChannelType.DM ? 'DM' : message.channel.name;
 
-  return new Discord.MessageEmbed({
-    description: pinContent + jumpToMessageLink,
-    color: config.services.discord.bot.themeColor,
-    timestamp: contentDate,
-    author: {
-      name: name,
-      iconURL: avatarUrl || undefined,
-      url: messageUrl,
-    },
-    image: {
-      url: firstImageUrl,
-    },
-    footer: {
-      text: channelName,
-    },
-  });
+  return new EmbedBuilder()
+    .setDescription(pinContent + jumpToMessageLink)
+    .setColor(config.services.discord.bot.themeColor)
+    .setTimestamp(contentDate)
+    .setAuthor({name: name, iconURL: avatarUrl || undefined, url: messageUrl})
+    .setImage(firstImageUrl)
+    .setFooter({text: channelName ?? 'DM'});
 }
 
 /**

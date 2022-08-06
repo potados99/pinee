@@ -11,10 +11,12 @@
     "start": "node --trace-warnings dist/index.js"
   },
   "engines": {
-    "node": ">= 14.15 <15"
+    "node": ">=16.9 <17"
   },
   "dependencies": {
-    "discord.js": "^12.5.1",
+    "@discordjs/rest": "^1.0.1",
+    "discord-api-types": "^0.37.1",
+    "discord.js": "^14.1.2",
     "isomorphic-fetch": "^3.0.0",
     "redis": "^3.0.2",
     "source-map-support": "^0.5.21",
