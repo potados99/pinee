@@ -64,3 +64,12 @@ export function extractEmbed(message: Message): MessageEmbed | undefined {
 
   return message.embeds[0];
 }
+
+/**
+ * 메시지를 스트링 형태로 나타냅니다.
+ * 로그에 메시지를 출력할 때에 좋습니다.
+ * @param message 메시지
+ */
+export function stringifyMessage(message: Message): string {
+  return `'${message.author.username}'님이 보낸 메시지(내용은 '${message.cleanContent}', reference는 '${message.reference}')`;
+}

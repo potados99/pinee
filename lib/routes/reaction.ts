@@ -2,6 +2,7 @@ import { log } from "../utils/logging";
 import { MessageReaction } from "discord.js";
 import config from "../../config";
 import PinByReactionResponder from "../responder/PinByReactionResponder";
+import { stringifyMessage } from "../utils/message";
 
 /**
  * 새로운 리액션이 추가되었을 때에 실행할 동작을 정의합니다.
@@ -22,7 +23,7 @@ export async function onReactionAdd(reaction: MessageReaction) {
     return;
   }
 
-  log(`📌 리액션으로 고정: 메시지 '${reaction.message.id}'을(를) 고정합니다!`);
+  log(`📌 핀으로 메시지를 고정합니다: ${stringifyMessage(reaction.message)}`);
 
   await new PinByReactionResponder(reaction).handle();
 }

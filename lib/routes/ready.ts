@@ -7,5 +7,5 @@ import config from "../../config";
  * @param _ 클라이언트
  */
 export async function onReady(_: Client) {
-  log(`${config.services.discord.bot.name} 시작!`);
+  log(`😃 ${config.services.discord.bot.name}이(가) 준비되었습니다.`);
 }
