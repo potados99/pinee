@@ -1,75 +1,39 @@
-import { Client, DMChannel, Message, MessageEmbed, MessageReaction, PartialMessage } from "discord.js";
-import { isNonPublicChannel } from "./channel";
-import config from "../../config";
-import { isOwner } from "./user";
+import { Client, Message, MessageEmbed, MessageReaction, PartialMessage } from "discord.js";
 
-export function isSame(one: Message, another: Message) {
-  return JSON.stringify(one.toJSON()) === JSON.stringify(another.toJSON());
-}
-
-export function isByOwner(message: Message) {
-  return isOwner(message.author, message.guild!!);
-}
-
+/**
+ * 주어진 메시지가 길드 없이 온 DM인지 여부를 가져옵니다.
+ * @param message 메시지
+ */
 export function isFromDm(message: Message | PartialMessage) {
   return !message.guild;
 }
 
-export function isByThisBot(client: Client, message: Message) {
+/**
+ * 주어진 메시지가 이 봇이 보낸 메시지인지 여부를 가져옵니다.
+ * @param client 클라이언트(이 봇)
+ * @param message 메시지
+ */
+export function isByThisBot(client: Client, message: Message): Boolean {
   return message.author.id === client.user?.id;
 }
 
-export function isMentioningThisBot(client: Client, message: Message) {
+/**
+ * 주어진 메시지가 이 봇을 언급(mention)하고 있는지 여부를 가져옵니다.
+ * @param client 클라이언트(이 봇)
+ * @param message 메시지
+ */
+export function isMentioningThisBot(client: Client, message: Message): Boolean {
   const mentionedUsers = message.mentions.users.array();
 
-  for (const user of mentionedUsers) {
-    if (user.id === client.user?.id) {
-      return true;
-    }
-  }
-
-  return false;
+  return mentionedUsers.find(user => user.id === client.user?.id) != null;
 }
 
-export function contentChanged(before: Message, after: Message) {
-  return before.content !== after.content;
-}
-
-export function contentNotChanged(before: Message, after: Message) {
-  return !contentChanged(before, after);
-}
-
+/**
+ * 해당 메시지가 고정되었는 여부를 가져옵니다.
+ * @param message 메시지
+ */
 export function isPinned(message: Message) {
   return message.pinned;
-}
-
-export function isNotPinned(message: Message) {
-  return !isPinned(message);
-}
-
-export function isJustPinned(before: Message, after: Message) {
-  return !before.pinned && after.pinned;
-}
-
-export function isFromNonPublicChannel(message: Message) {
-  const channel = message.channel;
-
-  return isNonPublicChannel(channel);
-}
-
-export function isFromNsfwChannel(message: Message) {
-  const channel = message.channel;
-
-  if (channel instanceof DMChannel) {
-    // No property 'nsfw' in DM channel.
-    return false;
-  }
-
-  return channel.nsfw;
-}
-
-export function inPlaceSortDateAscending(messages: Message[]) {
-  return messages.sort((left: Message, right: Message) => left.createdTimestamp - right.createdTimestamp);
 }
 
 /**
@@ -88,6 +52,10 @@ export async function reactionsFetched(...reactions: (MessageReaction)[]): Promi
   return Promise.all(reactions.map(r => r.partial ? r.fetch() : r));
 }
 
+/**
+ * 메시지 속에서 첫 번째 embed를 꺼내 옵니다.
+ * @param message 메시지
+ */
 export function extractEmbed(message: Message): MessageEmbed | undefined {
   const noEmbeds = message.embeds.length === 0;
   if (noEmbeds) {
