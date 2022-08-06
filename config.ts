@@ -30,9 +30,8 @@ export default {
       bot: {
         name: 'Pinee',
         themeColor: 0x836dc4,
-        auth: {
-          token: getEnv('TOKEN') || 'YEAH',
-        },
+        authToken: getEnv('DISCORD_BOT_TOKEN') || 'YEAH',
+        applicationId: getEnv('DISCORD_APP_ID') || 'APP',
       },
       api: {
         fetchLimitPerRequest: 100, // 디스코드 정책

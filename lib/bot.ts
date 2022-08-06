@@ -46,5 +46,5 @@ export default async function startBot() {
     await onInteractionCreate(interaction);
   });
 
-  await client.login(config.services.discord.bot.auth.token);
+  await client.login(config.services.discord.bot.authToken);
 }

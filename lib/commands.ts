@@ -34,6 +34,8 @@ export const commands: Command[] = [
 ];
 
 export async function registerCommands() {
-  const rest = new REST({version: '10'}).setToken(config.services.discord.bot.auth.token);
-  await rest.put(Routes.applicationCommands('786876831181045781'), {body: commands.map((c) => c.definition.toJSON())});
+  const rest = new REST({version: '10'}).setToken(config.services.discord.bot.authToken);
+  await rest.put(Routes.applicationCommands(config.services.discord.bot.applicationId), {
+    body: commands.map((c) => c.definition.toJSON()),
+  });
 }
