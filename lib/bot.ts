@@ -9,15 +9,16 @@ import Discord, {GatewayIntentBits, Partials} from 'discord.js';
 export default async function startBot() {
   const client = new Discord.Client({
     intents: [
-      GatewayIntentBits.Guilds, // 기본 필수
-      GatewayIntentBits.GuildMessages, // 길드 메시지 수신하려면 필요
-      GatewayIntentBits.GuildMessageReactions, // 길드 메시지 리액션 수신하려면 필요
-      GatewayIntentBits.DirectMessages, // 다이렉스 메시지 수신하려면 필요
+      GatewayIntentBits.Guilds, // 기본 필수입니다. 없으면 아무것도 안 돼요.
+      GatewayIntentBits.GuildMessages, // 길드 메시지를 수신하려면 필요합니다.
+      GatewayIntentBits.GuildMessageReactions, // 길드 메시지 리액션을 수신하려면 필요합니다.
+      GatewayIntentBits.DirectMessages, // 다이렉트 메시지를 수신하려면 필요합니다.
+      GatewayIntentBits.MessageContent, // 봇 시작 이후 들어오는 메시지의 내용을 확인하려면 필요합니다. 없으면 fetch해도 메시지 내용을 못 가져와요.
     ],
     partials: [
-      Partials.Channel, // Discord API v8부터 필요
-      Partials.Message,
-      Partials.Reaction,
+      Partials.Channel, // 다이렉트 메시지를 받으려면 Discord API v8부터 필요합니다. 링크 참조: https://stackoverflow.com/questions/68700270/event-messagecreate-not-firing-emitting-when-i-send-a-dm-to-my-bot-discord-js-v
+      Partials.Message, // 캐시 범위를 벗어난 message 이벤트를 수신하려면 필요합니다.
+      Partials.Reaction, // 캐시 범위를 벗어난 reaction 이벤트를 수신하려면 필요합니다.
     ],
   });
 
