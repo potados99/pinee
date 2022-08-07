@@ -13,7 +13,7 @@ export function isFromDm(message: Message | PartialMessage) {
  * @param client 클라이언트(이 봇)
  * @param message 메시지
  */
-export function isByThisBot(client: Client, message: Message): Boolean {
+export function isByThisBot(client: Client, message: Message): boolean {
   return message.author.id === client.user?.id;
 }
 
@@ -22,7 +22,7 @@ export function isByThisBot(client: Client, message: Message): Boolean {
  * @param client 클라이언트(이 봇)
  * @param message 메시지
  */
-export function isMentioningThisBot(client: Client, message: Message): Boolean {
+export function isMentioningThisBot(client: Client, message: Message): boolean {
   const mentionedUsers = message.mentions.users;
 
   return mentionedUsers.find((user) => user.id === client.user?.id) != null;

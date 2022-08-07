@@ -13,7 +13,8 @@ export default async function onInteractionCreate(interaction: Interaction) {
 
   const command = commands.find((c) => c.definition.name === commandName);
 
-  const answer = command == null ? '처리할 수 없는 명령입니다 ㅠㅡㅠ' : await command.handler(interaction);
+  const content = command == null ? '처리할 수 없는 명령입니다 ㅠㅡㅠ' : await command.handler(interaction);
+  const ephemeral = command == null ? true : command.ephemeral;
 
-  await interaction.reply({content: answer, ephemeral: true});
+  await interaction.reply({content, ephemeral});
 }
