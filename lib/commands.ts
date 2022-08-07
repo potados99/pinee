@@ -34,7 +34,7 @@ export const commands: Command[] = [
     },
   },
   {
-    definition: new SlashCommandBuilder().setName('주사위').setDescription('신은 주사위를 던지..ㅂ니다'),
+    definition: new SlashCommandBuilder().setName('주사위').setDescription('신은 주사위를 던지...ㅂ니다.'),
     ephemeral: false,
     handler: async () => {
       const possibleCases = [
@@ -44,6 +44,26 @@ export const commands: Command[] = [
         '⬤       ⬤\n\n⬤       ⬤',
         '⬤       ⬤\n      ⬤\n⬤       ⬤',
         '⬤       ⬤\n⬤       ⬤\n⬤       ⬤',
+      ];
+
+      return possibleCases[Math.floor(Math.random() * possibleCases.length)];
+    },
+  },
+  {
+    definition: new SlashCommandBuilder()
+      .setName('마법의소라고동님')
+      .setDescription('조심스레 답을 구해봅시다.')
+      .addStringOption((option) => option.setName('질문').setDescription('무엇을 여쭤볼까요?').setRequired(false)),
+    ephemeral: false,
+    handler: async () => {
+      const possibleCases = [
+        '가만히 있어요.',
+        '그것도 안 돼요.',
+        '굶어요.',
+        '그래요.',
+        '다시 한 번 물어봐요.',
+        '둘 다 먹지 마요.',
+        '언젠가는 하겠죠.',
       ];
 
       return possibleCases[Math.floor(Math.random() * possibleCases.length)];
