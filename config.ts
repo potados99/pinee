@@ -38,7 +38,7 @@ export default {
       },
     },
     redis: {
-      url: getEnv('REDISTOGO_URL') || 'anything haha',
+      url: getEnv('REDIS_URL') || 'anything haha',
     },
     simsimi: {
       apiKey: getEnv('SIMSIMI_API_KEY') || 'adadad',
